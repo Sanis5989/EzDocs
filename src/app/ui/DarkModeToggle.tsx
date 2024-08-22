@@ -17,15 +17,15 @@ export default function DarkModeToggle() {
 
   return (
     <div className="flex justify-between items-center">{theme === "dark" ? (
-      <Image alt="logo" src={"/image.png"} width={150} className="mx-8 my-2"
-      height={130}/>
+      <Image alt="logo" src={"/image.png"} width={170} className="mx-8 my-2"
+      height={150}/>
     ) : (
-      <Image alt="logo" src={"/image-black.png"} width={150} className="mx-8 my-2"
-      height={130}/>
+      <Image alt="logo" src={"/image-black.png"} width={170} className="mx-8 my-2"
+      height={150}/>
     )}
   <button
     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-    className="m-6 "
+    className="flex mx-6 items-center "
   >
     
     {theme === "dark" ? (
