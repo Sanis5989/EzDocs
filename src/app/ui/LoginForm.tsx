@@ -41,21 +41,23 @@ export default function LoginForm() {
       }
 
 
-      return (
-        <Form {...form}>
+      return (<div className="flex flex-col">
+      <div className="flex">
+        <text>
+          Login into EZ Docs
+        </text>
+      </div>
+      <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <input placeholder="username" {...field} />
+                  
+                  <FormControl className="w-80 h-9  text-lg">
+                    <input placeholder=" Email" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -65,11 +67,10 @@ export default function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <input placeholder="Password" {...field} />
-                  </FormControl>
                   
+                  <FormControl className="w-80 h-9 text-lg">
+                    <input placeholder=" Password" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -77,6 +78,8 @@ export default function LoginForm() {
             <Button type="submit">Submit</Button>
           </form>
         </Form>
+      </div>
+        
       )
 
 }
