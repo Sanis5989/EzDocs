@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { ThemeProvider } from "next-themes";
 import DarkModeToggle from "./ui/DarkModeToggle";
 import Header from "./ui/Header";
-import { AuthContextProvider, useAuth } from "./Auth/AuthContext";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,10 +26,10 @@ export default function RootLayout({
           "min-h-screen bg-background antialiased", inter.className
         )}
       ><ThemeProvider attribute="class">
-        <AuthContextProvider>
+        
           <Header />
         {children}
-        </AuthContextProvider>
+        
       </ThemeProvider>
       </body>
     </html>
