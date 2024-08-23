@@ -112,7 +112,7 @@ export default function LoginForm() {
             </form>
           </Form>
           <p className="text-center m-5">
-            Don't have an account?{" "}
+            Dont have an account?
             <Link href="#" onClick={() => setLogin(false)}>
               Sign Up.
             </Link>
