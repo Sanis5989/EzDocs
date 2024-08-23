@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 
+
 const formSchema = z
   .object({
     email: z.string().email("Invalid email address"),
@@ -32,6 +33,8 @@ const formSchema = z
   });
 
 
+
+
 export default function LoginForm() {
   const [login, setLogin] = useState(true);
 
@@ -45,6 +48,10 @@ export default function LoginForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+  }
+
+  function signUp(values: z.infer<typeof formSchema>) {
     console.log(values);
   }
 
@@ -118,7 +125,7 @@ export default function LoginForm() {
           </div>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(signUp)}
               className="flex flex-col space-y-8 items-center w-full"
               style={{ marginTop: "7%" }}
             >
