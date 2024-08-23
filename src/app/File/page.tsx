@@ -33,8 +33,18 @@ const EditorPage: React.FC = () => {
         const newContent = docSnap.data()?.content || '';
 
         // Prevent unnecessary updates to avoid cursor jumping
-        if (newContent !== quillRef.current?.getEditor()?.root.innerHTML) {
+        if (newContent !== content) {
           setContent(newContent);
+
+          // Restore cursor position
+          if (quillRef.current) {
+            const quillEditor = quillRef.current.getEditor();
+            const range = quillEditor.getSelection();
+            quillEditor.setContents(newContent);
+            if (range) {
+              quillEditor.setSelection(range.index, range.length);
+            }
+          }
         }
       } else {
         console.log('No such document!');
@@ -42,7 +52,7 @@ const EditorPage: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [content]);
 
   const handleSave = async () => {
     await updateDocument('1', content);

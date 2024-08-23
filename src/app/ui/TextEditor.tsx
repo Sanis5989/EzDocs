@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState ,forwardRef} from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 
@@ -9,7 +9,7 @@ interface QuillEditorProps {
   onChange: (content: string) => void;
 }
 
-const TextEditor: React.FC<QuillEditorProps> = ({ value, onChange }) => {
+const TextEditor: React.FC<QuillEditorProps> = forwardRef<Quill | null, QuillEditorProps>(({ value, onChange }, ref) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
   const [isTyping, setIsTyping] = useState(false); // Track if the user is currently typing
@@ -73,6 +73,6 @@ const TextEditor: React.FC<QuillEditorProps> = ({ value, onChange }) => {
       <div ref={editorRef} style={{ height: '300px' }}></div>
     </div>
   );
-};
+});
 
 export default TextEditor;
