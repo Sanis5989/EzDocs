@@ -53,7 +53,7 @@ const TextEditor: React.FC<QuillEditorProps> = forwardRef<Quill | null, QuillEdi
 
   // Handle external value changes
   useEffect(() => {
-    if (!isTyping && quillRef.current && quillRef.current.root.innerHTML !== value) {
+    if (quillRef.current && quillRef.current.root.innerHTML !== value) {
       // Save current cursor position
       const quill = quillRef.current;
       const range = quill.getSelection();
