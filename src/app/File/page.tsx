@@ -61,7 +61,7 @@ const EditorPage: React.FC = () => {
   return (
     <div>
       <h1>Quill Editor Example</h1>
-      <QuillEditor ref={quillRef} value={content} onChange={handleChange} />
+      <QuillEditor value={content} onChange={handleChange} />
       <button onClick={handleSave}>Save to Firestore</button>
       <div>
         <h2>Editor Content:</h2>
@@ -71,4 +71,24 @@ const EditorPage: React.FC = () => {
   );
 };
 
-export default EditorPage;
+export default EditorPage; 
+
+// 'use client';
+
+// import React from 'react';
+// import dynamic from 'next/dynamic';
+
+// const QuillEditor = dynamic(() => import('../ui/TextEditor'), { ssr: false });
+
+// const EditorPage: React.FC = () => {
+//   const docId = '1'; // The ID of the document
+
+//   return (
+//     <div>
+//       <h1>Yjs with Quill and Firebase Example</h1>
+//       <QuillEditor docId={docId} />
+//     </div>
+//   );
+// };
+
+// export default EditorPage;

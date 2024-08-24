@@ -75,4 +75,39 @@ const TextEditor: React.FC<QuillEditorProps> = forwardRef<Quill | null, QuillEdi
   );
 });
 
+TextEditor.displayName = "TextEditor"
+
 export default TextEditor;
+/* eslint-env browser */
+
+// "use clent"
+
+// import React, { useEffect, useRef } from 'react';
+// import Quill from 'quill';
+// import { QuillBinding } from 'y-quill';
+// import { createYDoc } from '../firebase/yjsProvider';
+// import 'quill/dist/quill.snow.css'
+
+
+// const QuillEditor = ({ docId }) => {
+//   const editorRef = useRef(null);
+
+//   useEffect(() => {
+//     const ydoc = createYDoc(docId);
+
+//     const quill = new Quill(editorRef.current, {
+//       theme: 'snow',
+//     });
+
+//     const binding = new QuillBinding(ydoc.getText('quill'), quill);
+
+//     return () => {
+//       binding.destroy();
+//     };
+//   }, [docId]);
+
+//   return <div ref={editorRef} style={{ height: '300px' }}/>;
+// };
+
+// export default QuillEditor;
+
