@@ -34,32 +34,33 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 18 5% 13%;;
+    --foreground: 0 0% 100%;;
+    --card: 18 5% 13%; /* Same as background for card elements */
+    --card-foreground: 0 0% 100%; /* White text color for card elements */
+    --popover: 18 5% 13%; /* Same as background for popovers */
+    --popover-foreground: 0 0% 100%; /* White text color for popovers */
+    --primary: 18 5% 13%; /* Background for primary elements */
+    --primary-foreground: 0 0% 100%; /* White text color for primary elements */
+    --secondary: 28 4% 16%; /* Slightly lighter dark gray for secondary elements */
+    --secondary-foreground: 0 0% 100%; /* White text color for secondary elements */
+    --muted: 28 4% 16%; /* Muted background color */
+    --muted-foreground: 0 0% 100%; /* White text color for muted elements */
+    --accent: 220 15% 55%; /* Accent color for highlights or actions */
+    --accent-foreground: 0 0% 100%; /* White text color for accent elements */
+    --destructive: 0 100% 50%; /* Bright red for destructive actions */
+    --destructive-foreground: 0 0% 100%; /* White text color for destructive actions */
+    --border: 28 4% 16%; /* Border color */
+    --input: 28 4% 16%; /* Input background color */
+    --ring: 28 4% 16%; /* Ring color */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --link: 210 100% 70%;
-    --link-hover: 210 100% 60%;
+    --link: 210 100% 75%; /* Link color */
+    --link-hover: 210 100% 60%; /* Link color on hover */
+  
   }
 }
 
@@ -82,3 +83,4 @@
     @apply text-[hsl(var(--link-hover))];
   }
 }
+
