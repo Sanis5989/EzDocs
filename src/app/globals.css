@@ -31,6 +31,8 @@
     --chart-5: 27 87% 67%;
     --link: 210 100% 40%;
     --link-hover: 210 100% 30%;
+    --button-bg: 167, 1%, 3%; /* Light mode button background */
+    --button-foreground: 0 0% 100%; /* Light mode button text color */
   }
 
   .dark {
@@ -60,7 +62,8 @@
     --chart-5: 340 75% 55%;
     --link: 210 100% 75%; /* Link color */
     --link-hover: 210 100% 60%; /* Link color on hover */
-  
+    --button-bg: 0 0% 100%; /* Light mode button background */
+    --button-foreground: 0 0% 100%; /* Light mode button text color */
   }
 }
 
@@ -81,6 +84,38 @@
   }
   a:hover {
     @apply text-[hsl(var(--link-hover))];
+  }
+  button {
+    @apply bg-[hsl(var(--button-bg))] text-[hsl(var(--button-foreground))] rounded;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
+  
+  button:hover {
+    @apply bg-[hsl(var(--button-bg-hover))]; /* Define a new variable if you want a different hover color */
+  }
+  
+  button:focus {
+    @apply ring-2 ring-[hsl(var(--ring))];
+  }
+
+
+  
+}
+
+@layer utilities {
+  /* Custom utility for text color */
+  .text-foreground {
+    color: hsl(var(--foreground));
+  }
+  
+  /* Custom utility for background color */
+  .bg-background {
+    background-color: hsl(var(--background));
+  }
+  
+  /* Add more utilities as needed */
+  .border-border {
+    border-color: hsl(var(--border));
   }
 }
 
