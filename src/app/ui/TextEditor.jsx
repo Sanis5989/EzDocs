@@ -8,28 +8,107 @@ import 'react-quill/dist/quill.snow.css';
 import { QuillBinding } from 'y-quill';
 import QuillCursors from 'quill-cursors';
 import html2pdf from 'html2pdf.js';
-import { FaFileExport } from "react-icons/fa";
+import { FaFileExport ,FaFileImport } from "react-icons/fa";
 import { useTheme } from 'next-themes';
+import mammoth from 'mammoth';
+import  ImageResize  from 'quill-image-resize-module-react';
+import DraggableImage from '../Utils/DraggableImage';
+
+
+
 
 // Register the cursor module with Quill
 Quill.register('modules/cursors', QuillCursors);
 
+Quill.register("modules/imageResize", ImageResize);
+
+Quill.register('modules/draggableImage', DraggableImage);
 
 export default function Editor({ documentId }) {
   const [quill, setQuill] = useState(null);
   const reactQuillRef = useRef(null);
-
+  // maintaining a4 size
+  const [editorWidth, setEditorWidth] = useState(210 * 3.7795275591);
   const { theme} = useTheme();
+  const fileInputRef = useRef(null);
+
+  const [exporthHeight, setExportHeight] = useState()
   
 
 
+  //setting the quill instance
   useEffect(() => {
     if (reactQuillRef.current) {
-      const quillInstance = reactQuillRef.current.getEditor(); // Get the Quill instance
+      const quillInstance = reactQuillRef.current.getEditor();
       setQuill(quillInstance);
+
+      // Safe access to modules
+      const imageResizeModule = quillInstance.getModule('imageResize');
+      if (imageResizeModule) {
+        console.log('ImageResize module found:', imageResizeModule);
+        
+        // Override the onResize method
+        imageResizeModule.onResize = (image, rect) => {
+          if (image && rect) {
+            console.log('Image resize event:', {
+              src: image.src,
+              newWidth: rect.width,
+              newHeight: rect.height,
+              naturalWidth: image.naturalWidth,
+              naturalHeight: image.naturalHeight,
+              currentWidth: image.width,
+              currentHeight: image.height,
+              style: image.getAttribute('style')
+            });
+            updateQuillContents(image, rect);
+          } else {
+            console.log('Resize event triggered but image or rect is undefined', { image, rect });
+          }
+        };
+
+        // Add a mutation observer to track size changes  
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+              const image = mutation.target;
+              setExportHeight(image.height)
+              console.log('Image style changed:', {
+                
+                newStyle: image.getAttribute('style'),
+                width: image.width,
+                height: image.height
+              });
+            }
+          });
+        });
+
+        // Observe all images in the editor
+        quillInstance.root.querySelectorAll('img').forEach((img) => {
+          observer.observe(img, { attributes: true, attributeFilter: ['style'] });
+        });
+
+        // Observe for new images added to the editor
+        quillInstance.on('text-change', (delta, oldDelta, source) => {
+          delta.ops.forEach((op) => {
+            if (op.insert && op.insert.image) {
+              setTimeout(() => {
+                const newImage = quillInstance.root.querySelector(`img[src="${op.insert.image}"]`);
+                if (newImage) {
+                  observer.observe(newImage, { attributes: true, attributeFilter: ['style'] });
+                  console.log('New image added and observed:', newImage.src);
+                }
+              }, 0);
+            }
+          });
+        });
+      } else {
+        console.warn('ImageResize module not found');
+      }
     }
   }, [reactQuillRef.current]);
 
+
+  //connnecting to the socket and exchanging data
   useEffect(() => {
     if (quill) {
       const ydoc = new Y.Doc();
@@ -94,13 +173,9 @@ export default function Editor({ documentId }) {
     }
   }, [quill, documentId]);
 
-
-  // maintaining a4 size
-  const [editorWidth, setEditorWidth] = useState(210 * 3.7795275591);
-
+  //maintaining a4 size
   useEffect(() => {
     const updateEditorWidth = () => {
-      const a4AspectRatio = 1 / Math.sqrt(2);
       const maxWidth = 1000; // Maximum width of 1000 pixels
       const windowWidth = window.innerWidth;
       const containerPadding = 40;
@@ -117,55 +192,201 @@ export default function Editor({ documentId }) {
     };
   }, []);
 
+  // Function to import DOCX with enhanced formatting preservation
+  const importDOCX = (event) => {
+    const file = event.target.files[0];
+    if (!file) return; // Check if a file was selected
+
+    // Check if the file is a DOCX file
+    if (file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      console.error("Please select a valid DOCX file.");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (loadEvent) {
+      const arrayBuffer = loadEvent.target.result;
+
+      // Use mammoth to convert the DOCX file to HTML with enhanced options
+      mammoth.convertToHtml({ arrayBuffer: arrayBuffer }, {
+        styleMap: [
+          "p[style-name='Title'] => h1:fresh",
+          "p[style-name='Subtitle'] => h2:fresh",
+          "b => strong",
+          "i => em",
+          "p[style-name='Heading 1'] => h1:fresh",
+          "p[style-name='Heading 2'] => h2:fresh",
+          "p[style-name='Normal'] => p:fresh",
+          "r[style-name='Bold'] => strong",
+          "r[style-name='Italic'] => em",
+          // Text alignment
+          "p[style-name='Centered'] => p.centered",
+          "p[style-name='Right'] => p.right-aligned",
+          "p[style-name='Justified'] => p.justified",
+          // Add other mappings for specific styles as needed
+        ],
+        includeDefaultStyleMap: true
+      })
+      .then(function (result) {
+        const html = result.value;
+        if (quill) {
+          // Use Quill's clipboard to safely paste HTML
+          quill.clipboard.dangerouslyPasteHTML(html);
+        } else {
+          console.error("Quill instance is not ready.");
+        }
+      })
+      .catch(function (error) {
+        console.error("Error converting DOCX:", error);
+      });
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+
+  const updateQuillContents = (image, rect) => {
+    const blot = Quill.find(image);
+    if (blot) {
+      const index = quill.getIndex(blot);
+      quill.updateContents([
+        { retain: index },
+        { 
+          attributes: { 
+            width: rect.width,
+            height: rect.height
+          }
+        }
+      ]);
+    }};
 
   //export to pdf function
   const exportToPDF = () => {
     if (!quill) return;
   
-    // Create a temporary div to hold the formatted content
+    console.log("Starting PDF export process");
+  
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = quill.root.innerHTML;
+    console.log("Quill content copied to temp div");
   
-    // Apply styling to the temp div
-    tempDiv.style.width = '210mm';  // A4 width
-    tempDiv.style.padding = '10mm';  // A4 margins
+    tempDiv.style.width = '210mm';
+    tempDiv.style.minHeight = '297mm';
+    tempDiv.style.padding = '10mm';
     tempDiv.style.backgroundColor = 'white';
-    tempDiv.style.color = 'black';  // Enforce black text color
+    tempDiv.style.color = 'black';
+    tempDiv.style.position = 'relative';
+  
+    const images = tempDiv.querySelectorAll('img');
+    console.log(`Found ${images.length} images in the content`);
+  
+    const imagePromises = Array.from(images).map(img => {
+      return new Promise((resolve, reject) => {
+        if (img.complete) {
+          console.log(`Image already loaded: ${img.src}`);
+          processImage(img);
+          resolve();
+        } else {
+          img.onload = () => {
+            console.log(`Image loaded: ${img.src}`);
+            processImage(img);
+            resolve();
+          };
+          img.onerror = () => {
+            console.error(`Failed to load image: ${img.src}`);
+            reject();
+          };
+        }
+      });
+    });
+  
+    function processImage(img) {
+      // Get the width and height from the image attributes or computed style
+      const width = img.getAttribute('width') || img.style.width || img.naturalWidth;
+      // const height = img.getAttribute('height') || img.style.height || img.naturalHeight;
+      const height = exporthHeight;
+      
+      if (width && height) {
+        img.style.width = typeof width === 'number' ? `${width}px` : width;
+        img.style.height = typeof height === 'number' ? `${height}px` : height;
+      }
+      
+      // Handle any translation (dragging) that was applied
+      const style = img.getAttribute('style') || '';
+      const transformMatch = style.match(/transform:\s*translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
+      
+      if (transformMatch) {
+        const translateX = parseFloat(transformMatch[1]);
+        const translateY = parseFloat(transformMatch[2]);
+        
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'inline-block';
+        wrapper.style.transform = `translate(${translateX}px, ${translateY}px)`;
+        img.style.transform = 'none'; // Remove transform from the image
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+      }
+      
+      // Log image details
+      console.log(`Image processed:  width=${img.style.width}, height=${img.style.height}, transform=${img.style.transform || 'none'}`);
+    }
   
     // Apply custom Quill styles
     const styleElement = document.createElement('style');
     styleElement.textContent = `
-      h1 { font-size: 48px !important; }
-      h2 { font-size: 32px !important; }
-      h3 { font-size: 24px !important; }
-      p { font-size: 18px !important; }
+      h1 { font-size: 38.4px !important; }
+      h2 { font-size: 25.6px !important; }
+      h3 { font-size: 19.2px !important; }
+      p { font-size: 14.4px !important; vertical-align: middle; }
+      ul, ol {
+        font-size: 14.4px !important;
+        padding-left: 40px;
+        list-style-type: disc;
+        line-height: 1;
+      }
+      img {
+        
+      }
     `;
-    tempDiv.appendChild(styleElement);
   
-    // Force all text to be black
-    const allTextElements = tempDiv.querySelectorAll('*');
-    allTextElements.forEach(el => {
-      el.style.color = 'black';
-    });
+    tempDiv.appendChild(styleElement);
   
     // Append the temp div to the body
     document.body.appendChild(tempDiv);
+    console.log("Temp div appended to body");
   
-    const opt = {
-      margin: 0,
-      filename: 'document.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    // Wait for all images to load before generating PDF
+    Promise.all(imagePromises).then(() => {
+      console.log("All images loaded, generating PDF");
   
-    setTimeout(() => {
+      const opt = {
+        margin: 10,
+        filename: 'document.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          logging: true,
+          onrendered: function(canvas) {
+            console.log("html2canvas rendering complete");
+          }
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+  
       html2pdf().set(opt).from(tempDiv).save().then(() => {
+        console.log("PDF generation complete");
         document.body.removeChild(tempDiv);
+      }).catch(error => {
+        console.error("Error generating PDF:", error);
       });
-    }, 500);
+    }).catch(error => {
+      console.error("Error loading images:", error);
+    });
   };
+  
 
+  //styles
   const containerStyle = {
     padding: '20px',
     paddingTop:0,
@@ -174,7 +395,6 @@ export default function Editor({ documentId }) {
     flexDirection: 'column',
     alignItems: 'center',
   };
-
   const tolbarContainerStyle = {
     padding: '20px',
     paddingTop:0,
@@ -183,7 +403,6 @@ export default function Editor({ documentId }) {
     flexDirection: 'column',
     alignItems: 'center',
   };
-
   const editorStyle = {
     width: `${editorWidth}px`,
     height: `${editorWidth * Math.sqrt(2)}px`, // A4 aspect ratio
@@ -232,7 +451,6 @@ export default function Editor({ documentId }) {
       width:150px;
     }
 `;
-
 const customQuillStyles = `
   /* Custom styles for headers in the editor */
   .ql-snow .ql-editor h1{
@@ -251,14 +469,35 @@ const customQuillStyles = `
   .ql-editor p{
     font-size: 18px !important;
   }
+
+  ul, ol { 
+    font-size: 18px !important;
+    padding-left: 20px; /* Adjust left padding for indentation */
+    
+    
+  }
+    ul { list-style-type: disc; } /* Show bullets for unordered lists */
+    ol { list-style-type: decimal; } /* Show numbers for ordered lists */
 `;
+
+
   
  
   return (
     <>
       <style>{toolbarButtonStyle}</style>
       <style>{customQuillStyles}</style>
-      <div style={tolbarContainerStyle}>
+
+      <div style={tolbarContainerStyle}><input
+        type="file"
+        accept=".docx"
+        onChange={importDOCX}
+        style={{ display: 'none' }}
+        ref={fileInputRef}
+      />
+      <button onClick={() => fileInputRef.current.click()}>
+        <FaFileImport size={24} />
+      </button>
         <div id="custom-toolbar" style={toolbarStyle}>
           <select className="ql-header" defaultValue="">
             <option value=""></option>
@@ -296,6 +535,12 @@ const customQuillStyles = `
             modules={{
               toolbar: '#custom-toolbar',
               cursors: true,
+              imageResize: {
+                parchment: Quill.import('parchment')
+                // See optional "config" below
+            },
+            draggableImage: {}
+             
             }}
             ref={reactQuillRef}
             style={editorStyle}
