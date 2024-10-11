@@ -173,24 +173,24 @@ export default function Editor({ documentId }) {
     }
   }, [quill, documentId]);
 
-  //maintaining a4 size
-  useEffect(() => {
-    const updateEditorWidth = () => {
-      const maxWidth = 1000; // Maximum width of 1000 pixels
-      const windowWidth = window.innerWidth;
-      const containerPadding = 40;
+  // //maintaining a4 size
+  // useEffect(() => {
+  //   const updateEditorWidth = () => {
+  //     const maxWidth = 1000; // Maximum width of 1000 pixels
+  //     const windowWidth = window.innerWidth;
+  //     const containerPadding = 40;
 
-      let newWidth = Math.min(windowWidth - containerPadding, maxWidth);
-      setEditorWidth(newWidth);
-    };
+  //     let newWidth = Math.min(windowWidth - containerPadding, maxWidth);
+  //     setEditorWidth(newWidth);
+  //   };
 
-    updateEditorWidth();
-    window.addEventListener('resize', updateEditorWidth);
+  //   updateEditorWidth();
+  //   window.addEventListener('resize', updateEditorWidth);
 
-    return () => {
-      window.removeEventListener('resize', updateEditorWidth);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('resize', updateEditorWidth);
+  //   };
+  // }, []);
 
   // Function to import DOCX with enhanced formatting preservation
   const importDOCX = (event) => {
@@ -262,22 +262,213 @@ export default function Editor({ documentId }) {
     }};
 
   //export to pdf function
-  const exportToPDF = () => {
-    if (!quill) return;
+//   const exportToPDF = () => {
+//     if (!quill) return;
   
-    console.log("Starting PDF export process");
+//     console.log("Starting PDF export process");
   
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = quill.root.innerHTML;
-    console.log("Quill content copied to temp div");
+//     const tempDiv = document.createElement('div');
+//     tempDiv.innerHTML = quill.root.innerHTML;
+//     console.log("Quill content copied to temp div");
   
-    tempDiv.style.width = '210mm';
-    tempDiv.style.minHeight = '297mm';
-    tempDiv.style.padding = '10mm';
-    tempDiv.style.backgroundColor = 'white';
-    tempDiv.style.color = 'black';
-    tempDiv.style.position = 'relative';
+//     tempDiv.style.width = '210mm';
+//     tempDiv.style.minHeight = '297mm';
+//     tempDiv.style.padding = '10mm';
+//     tempDiv.style.backgroundColor = 'white';
+//     tempDiv.style.color = 'black';
+//     tempDiv.style.position = 'relative';
   
+//     const images = tempDiv.querySelectorAll('img');
+//     console.log(`Found ${images.length} images in the content`);
+  
+//     const imagePromises = Array.from(images).map(img => {
+//       return new Promise((resolve, reject) => {
+//         if (img.complete) {
+//           console.log(`Image already loaded: ${img.src}`);
+//           processImage(img);
+//           resolve();
+//         } else {
+//           img.onload = () => {
+//             console.log(`Image loaded: ${img.src}`);
+//             processImage(img);
+//             resolve();
+//           };
+//           img.onerror = () => {
+//             console.error(`Failed to load image: ${img.src}`);
+//             reject();
+//           };
+//         }
+//       });
+//     });
+  
+//     function processImage(img) {
+//       // Get the width and height from the image attributes or computed style
+//       const width = img.getAttribute('width') || img.style.width || img.naturalWidth;
+//       // const height = img.getAttribute('height') || img.style.height || img.naturalHeight;
+//       const height = exporthHeight;
+      
+//       if (width && height) {
+//         img.style.width = typeof width === 'number' ? `${width}px` : width;
+//         img.style.height = typeof height === 'number' ? `${height}px` : height;
+//       }
+      
+//       // Handle any translation (dragging) that was applied
+//       const style = img.getAttribute('style') || '';
+//       const transformMatch = style.match(/transform:\s*translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
+      
+//       if (transformMatch) {
+//         const translateX = parseFloat(transformMatch[1]);
+//         const translateY = parseFloat(transformMatch[2]);
+        
+//         const wrapper = document.createElement('div');
+//         wrapper.style.display = 'inline-block';
+//         wrapper.style.transform = `translate(${translateX}px, ${translateY}px)`;
+//         img.style.transform = 'none'; // Remove transform from the image
+//         img.parentNode.insertBefore(wrapper, img);
+//         wrapper.appendChild(img);
+//       }
+      
+//       // Log image details
+//       console.log(`Image processed:  width=${img.style.width}, height=${img.style.height}, transform=${img.style.transform || 'none'}`);
+//     }
+  
+//     // Apply custom Quill styles
+//     const styleElement = document.createElement('style');
+// styleElement.textContent = `
+//     * {
+//         box-sizing: border-box;
+//     }
+
+//     h1 { font-size: 38.4px !important; }
+//     h2 { font-size: 25.6px !important; }
+//     h3 { font-size: 19.2px !important; }
+//     p { font-size: 14.4px !important; line-height: 1.42; }
+//     ul, ol {
+//         font-size: 14.4px;
+//         margin: 0;
+//         padding-left: 20px;
+//         vertical-align: baseline !important;
+//         line-height: 1.42;
+//     }
+//     li {
+//         font-size: 14.4px;
+//         margin: 0;
+//         padding: 0;
+//         line-height: 1.42; /* Adjust line-height for better alignment */
+//         vertical-align: baseline !important;
+//     }
+// `;
+
+// tempDiv.appendChild(styleElement);
+// tempDiv.style.boxSizing = 'border-box';
+// tempDiv.style.width = '210mm';  // Ensuring it matches A4 size
+// tempDiv.style.padding = '20mm'; // Optional, for content padding
+
+// // Append the temp div to the body
+// document.body.appendChild(tempDiv);
+// console.log("Temp div appended to body", tempDiv);
+
+//     // Wait for all images to load before generating PDF
+//     Promise.all(imagePromises).then(() => {
+//       console.log("All images loaded, generating PDF");
+  
+//       const opt = {
+//         margin: 1,
+//         filename: 'document.pdf',
+//         image: { type: 'jpeg', quality: 0.98 },
+//         html2canvas: { 
+//           scale: 2,
+//           logging: true,
+//           scrollX: 0,
+//         scrollY: 0,
+//           onrendered: function(canvas) {
+//             console.log("html2canvas rendering complete");
+//           }
+//         },
+//         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+//       };
+  
+//       html2pdf().set(opt).from(tempDiv).save().then(() => {
+//         console.log("PDF generation complete");
+//         document.body.removeChild(tempDiv);
+//       }).catch(error => {
+//         console.error("Error generating PDF:", error);
+//       });
+//     }).catch(error => {
+//       console.error("Error loading images:", error);
+//     });
+//   };]
+
+const exportToPDF = () => {
+  if (!quill) return;
+
+  console.log("Starting PDF export process");
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = quill.root.innerHTML;
+  console.log("Quill content copied to temp div");
+
+  tempDiv.style.width = '210mm';
+  tempDiv.style.minHeight = '297mm';
+  tempDiv.style.padding = '10mm';
+  tempDiv.style.backgroundColor = 'white';
+  tempDiv.style.color = 'black';
+  tempDiv.style.position = 'relative';
+  tempDiv.style.boxSizing = 'border-box';
+
+  // Process images (code remains the same)
+  // ...
+
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    * {
+      box-sizing: border-box;
+    }
+    h1 { font-size: 48px !important; }
+    h2 { font-size: 32px !important; }
+    h3 { font-size: 24px !important; }
+    p { 
+      font-size: 18px !important; 
+      line-height: 1.42;
+      margin: 0 0 10px 0;
+    }
+    ul, ol {
+      font-size: 18px !important;
+      padding-left: 20px !important;
+      margin: 0 0 10px 0 !important;
+      list-style-position: outside !important;
+      vertical-align: baseline !important;
+    }
+    li {
+      font-size: 18px !important;
+      line-height: 1.42 !important;
+      margin-bottom: 5px !important;
+      vertical-align: baseline !important;
+    }
+    ul { list-style-type: disc !important; }
+    ol { list-style-type: decimal !important; }
+  `;
+
+  tempDiv.appendChild(styleElement);
+
+  // Force list item alignment
+  const lists = tempDiv.querySelectorAll('ul, ol');
+  lists.forEach(list => {
+    list.style.paddingLeft = '20px';
+    list.style.marginLeft = '0';
+  });
+
+  const listItems = tempDiv.querySelectorAll('li');
+  listItems.forEach(item => {
+    item.style.display = 'list-item';
+    item.style.marginLeft = '0';
+  });
+
+  // Append the temp div to the body
+  document.body.appendChild(tempDiv);
+  console.log("Temp div appended to body", tempDiv);
+
+  // Wait for all images to load before generating PDF
     const images = tempDiv.querySelectorAll('img');
     console.log(`Found ${images.length} images in the content`);
   
@@ -300,90 +491,66 @@ export default function Editor({ documentId }) {
         }
       });
     });
-  
+
+
     function processImage(img) {
-      // Get the width and height from the image attributes or computed style
-      const width = img.getAttribute('width') || img.style.width || img.naturalWidth;
-      // const height = img.getAttribute('height') || img.style.height || img.naturalHeight;
-      const height = exporthHeight;
-      
-      if (width && height) {
-        img.style.width = typeof width === 'number' ? `${width}px` : width;
-        img.style.height = typeof height === 'number' ? `${height}px` : height;
-      }
-      
-      // Handle any translation (dragging) that was applied
-      const style = img.getAttribute('style') || '';
-      const transformMatch = style.match(/transform:\s*translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
-      
-      if (transformMatch) {
-        const translateX = parseFloat(transformMatch[1]);
-        const translateY = parseFloat(transformMatch[2]);
-        
-        const wrapper = document.createElement('div');
-        wrapper.style.display = 'inline-block';
-        wrapper.style.transform = `translate(${translateX}px, ${translateY}px)`;
-        img.style.transform = 'none'; // Remove transform from the image
-        img.parentNode.insertBefore(wrapper, img);
-        wrapper.appendChild(img);
-      }
-      
-      // Log image details
-      console.log(`Image processed:  width=${img.style.width}, height=${img.style.height}, transform=${img.style.transform || 'none'}`);
-    }
-  
-    // Apply custom Quill styles
-    const styleElement = document.createElement('style');
-    styleElement.textContent = `
-      h1 { font-size: 38.4px !important; }
-      h2 { font-size: 25.6px !important; }
-      h3 { font-size: 19.2px !important; }
-      p { font-size: 14.4px !important; vertical-align: middle; }
-      ul, ol {
-        font-size: 14.4px !important;
-        padding-left: 40px;
-        list-style-type: disc;
-        line-height: 1;
-      }
-      img {
-        
-      }
-    `;
-  
-    tempDiv.appendChild(styleElement);
-  
-    // Append the temp div to the body
-    document.body.appendChild(tempDiv);
-    console.log("Temp div appended to body");
-  
-    // Wait for all images to load before generating PDF
-    Promise.all(imagePromises).then(() => {
-      console.log("All images loaded, generating PDF");
-  
-      const opt = {
-        margin: 10,
-        filename: 'document.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2,
-          logging: true,
-          onrendered: function(canvas) {
-            console.log("html2canvas rendering complete");
+            // Get the width and height from the image attributes or computed style
+            const width = img.getAttribute('width') || img.style.width || img.naturalWidth;
+            // const height = img.getAttribute('height') || img.style.height || img.naturalHeight;
+            const height = exporthHeight;
+            
+            if (width && height) {
+              img.style.width = typeof width === 'number' ? `${width}px` : width;
+              img.style.height = typeof height === 'number' ? `${height}px` : height;
+            }
+            
+            // Handle any translation (dragging) that was applied
+            const style = img.getAttribute('style') || '';
+            const transformMatch = style.match(/transform:\s*translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
+            
+            if (transformMatch) {
+              const translateX = parseFloat(transformMatch[1]);
+              const translateY = parseFloat(transformMatch[2]);
+              
+              const wrapper = document.createElement('div');
+              wrapper.style.display = 'inline-block';
+              wrapper.style.transform = `translate(${translateX}px, ${translateY}px)`;
+              img.style.transform = 'none'; // Remove transform from the image
+              img.parentNode.insertBefore(wrapper, img);
+              wrapper.appendChild(img);
+            }
+            
+            // Log image details
+            console.log(`Image processed:  width=${img.style.width}, height=${img.style.height}, transform=${img.style.transform || 'none'}`);
           }
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-  
-      html2pdf().set(opt).from(tempDiv).save().then(() => {
-        console.log("PDF generation complete");
-        document.body.removeChild(tempDiv);
-      }).catch(error => {
-        console.error("Error generating PDF:", error);
-      });
+
+  Promise.all(imagePromises).then(() => {
+    console.log("All images loaded, generating PDF");
+
+    const opt = {
+      margin: 1,
+      filename: 'document.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        logging: true,
+        onrendered: function(canvas) {
+          console.log("html2canvas rendering complete");
+        }
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(tempDiv).save().then(() => {
+      console.log("PDF generation complete");
+      document.body.removeChild(tempDiv);
     }).catch(error => {
-      console.error("Error loading images:", error);
+      console.error("Error generating PDF:", error);
     });
-  };
+  }).catch(error => {
+    console.error("Error loading images:", error);
+  });
+};
   
 
   //styles
@@ -404,6 +571,7 @@ export default function Editor({ documentId }) {
     alignItems: 'center',
   };
   const editorStyle = {
+    minWidth: `${editorWidth}px`,
     width: `${editorWidth}px`,
     height: `${editorWidth * Math.sqrt(2)}px`, // A4 aspect ratio
     border: '1px solid #ccc',
