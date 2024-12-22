@@ -3,7 +3,7 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const TextEditor = dynamic(() => import('../ui/TextEditor'), { ssr: false });
+const TextEditor = dynamic(() => import('./TextEditor'), { ssr: false });
 
 const EditorPage: React.FC = () => {
   const docId = '1'; // The ID of the document

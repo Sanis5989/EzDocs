@@ -95,7 +95,7 @@
   }
   
   button:hover {
-    @apply bg-[hsl(var(--button-bg-hover))] text-[hsl(var(--button-foreground-hover))]; /* Define a new variable if you want a different hover color */
+    @apply bg-[hsl(var(--button-bg-hover))] text-[hsl(var(--button-foreground-hover))]; 
   }
   
   button:focus {

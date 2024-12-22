@@ -1,12 +1,14 @@
-"useClient";
 
-import LoginForm from "./ui/LoginForm";
+
+import LoginForm from "../components/ui/ui/LoginForm";
 import Image from "next/image";
+import Loading from "./loading";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center ">
   <div className="flex flex-col md:flex-row justify-around w-full">
+ 
     <div className="p-10 sm:p-0 flex-1 md:ms-32 flex justify-center items-center ">
       <Image 
         src={"/landing.png"} 
@@ -19,6 +21,7 @@ export default function Home() {
     </div>
     <div className="flex-1 flex justify-center">
       <LoginForm />
+      
     </div>
   </div>
 </main>

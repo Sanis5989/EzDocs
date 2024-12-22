@@ -12,7 +12,7 @@ import { FaFileExport ,FaFileImport } from "react-icons/fa";
 import { useTheme } from 'next-themes';
 import mammoth from 'mammoth';
 import  ImageResize  from 'quill-image-resize-module-react';
-import DraggableImage from '../Utils/DraggableImage';
+import DraggableImage from '../../Utils/DraggableImage';
 
 
 
@@ -555,12 +555,12 @@ const exportToPDF = () => {
 
   //styles
   const containerStyle = {
-    padding: '20px',
-    paddingTop:0,
-    paddingBottom:"15px",
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    width: '100%',
+  maxWidth: '800px', /* Default A4 width in points */
+  margin: '0 auto',
+  padding: '16px',
+  boxSizing: 'border-box'
+    
   };
   const tolbarContainerStyle = {
     padding: '20px',
@@ -571,11 +571,13 @@ const exportToPDF = () => {
     alignItems: 'center',
   };
   const editorStyle = {
-    minWidth: `${editorWidth}px`,
-    width: `${editorWidth}px`,
-    height: `${editorWidth * Math.sqrt(2)}px`, // A4 aspect ratio
+    position: 'relative',
+    width: `100%`,
+    aspectRatio:'1/1.4142',
     border: '1px solid #ccc',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+  boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+  
+  boxSizing: 'border-box'
   };
   const toolbarStyle = {
     

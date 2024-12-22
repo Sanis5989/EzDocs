@@ -3,8 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "next-themes";
-import DarkModeToggle from "./ui/DarkModeToggle";
-import Header from "./ui/Header";
+import DarkModeToggle from "../components/ui/ui/DarkModeToggle";
+import Header from "../components/ui/ui/Header";
+import Loading from "./loading";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,7 +28,7 @@ export default function RootLayout({
         )}
       ><ThemeProvider attribute="class">
         
-          <Header />
+          <Header /> 
         {children}
         
       </ThemeProvider>
