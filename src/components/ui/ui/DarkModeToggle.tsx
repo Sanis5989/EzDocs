@@ -29,7 +29,7 @@ export default function DarkModeToggle() {
       />  
       <div
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="flex mx-6 items-center mr-8 hover:cursor-pointer">
+      className="flex mx-6 mb-6 pb-2 items-center mr-8 hover:cursor-pointer">
         {theme === "dark" ? (
           <MdSunny size={28} />
         ) : (
