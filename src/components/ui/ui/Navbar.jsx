@@ -4,22 +4,24 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { MdSunny,MdDarkMode } from "react-icons/md";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { IoIosLogOut } from "react-icons/io";
+import { Button } from "../button";
 
 export default function Navbar() {
+
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+
+  const pathname =  usePathname();
 
   const [toggleDropdown, setToggleDropdown] = useState(false);
 
   const { data: session } = useSession();
 
-  const [providers, setProviders] = useState(null);
-
-
+  
   return (
     <div className="flex justify-between items-center mb-5">
       <Image
@@ -61,6 +63,7 @@ export default function Navbar() {
             <button
               onClick={() => {    
                 setToggleDropdown(false);
+                signOut();
               }}
               className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
             >
@@ -72,27 +75,31 @@ export default function Navbar() {
       )}
       </div>): (
         <>
-        {providers &&
-          Object.values(providers).map((provider) => (
-            <button
-              type='button'
-              key={provider.name}
-              onClick={() => {
-                signIn(provider.id);
+        {/* { pathname !== "/login" &&
+
+        <div className="flex flex-row items-center justify-end">
+              <Button
+              onClick={()=>{router.push("/login")
               }}
-              className='black_btn'
-            >
-              Sign in
-            </button>
-          ))}  <div
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="flex mx-6 mb-6 pb-2 items-center mr-8 hover:cursor-pointer">
-        {theme === "dark" ? (
-          <MdSunny size={28} />
-        ) : (
-          <MdSunny color="black" size={28} />
-        )}
-      </div>
+                type="submit"
+                className="flex text-lg rounded-full mx-6 mb-6 pb-2 items-center mr-8 hover:cursor-pointer"
+                size="default"
+              >
+               Log In
+              </Button>
+              
+        </div>
+        } */}
+            <div
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex mx-6 mb-6 pb-2 items-center mr-8 hover:cursor-pointer">
+                {theme === "dark" ? (
+                  <MdSunny size={28} />
+                ) : (
+                <MdSunny color="black" size={28} />
+            )}
+              </div>
+      
         </>
       ) }
       

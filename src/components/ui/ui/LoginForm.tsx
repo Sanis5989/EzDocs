@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { signIn, signOut, getProviders } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Link from "next/link";
-import { useState } from "react";
+import { useState , useEffect} from "react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 
 const formSchema = z
@@ -35,9 +38,15 @@ const formSchema = z
 
 
 
+
+
 export default function LoginForm() {
   const [login, setLogin] = useState(true);
+  const {data: session} = useSession();
 
+  const [providers, setProviders] = useState(null);
+  
+    
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,6 +63,12 @@ export default function LoginForm() {
   function signUp(values: z.infer<typeof formSchema>) {
     console.log(values);
   }
+  useEffect(() => {
+      (async () => {
+        const res = await getProviders();
+        setProviders(res);
+      })();
+    }, []);
 
   return (
     <div className="flex flex-col md:mr-20 mt-10 max-w-full justify-center ">
@@ -112,11 +127,24 @@ export default function LoginForm() {
             </form>
           </Form>
           <p className="text-center m-5">
-            Dont have an account?
+            Dont have an account?{" "}
             <Link href="#" onClick={() => setLogin(false)}>
               Sign Up.
             </Link>
           </p>
+          <div className="flex h-1 justify-center items-center m-3">
+          {providers &&
+          Object.values(providers).map((provider:any) => (
+            <Button  key={provider.name}
+                          onClick={() => {
+                            signIn(provider.id);
+                          }}>
+            <Image src={"/google.svg"} alt="google image logo" width={20} height={20} className="m-2"/>
+            <p className="text-center text-lg font-light">
+              Continue with Google{" "}
+            </p>
+            </Button>))}
+          </div>
         </>
       ) : (
         <>
@@ -195,6 +223,20 @@ export default function LoginForm() {
               Sign In.
             </Link>
           </p>
+          
+          <div className="flex h-1 justify-center items-center m-3">
+          {providers &&
+          Object.values(providers).map((provider:any) => (
+            <Button  key={provider.name}
+                          onClick={() => {
+                            signIn(provider.id);
+                          }}>
+            <Image src={"/google.svg"} alt="google image logo" width={20} height={20} className="m-2"/>
+            <p className="text-center text-lg font-light">
+              Continue with Google{" "}
+            </p>
+            </Button>))}
+          </div>
         </>
       )}
     </div>
