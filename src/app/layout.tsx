@@ -3,9 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "next-themes";
-import DarkModeToggle from "../components/ui/ui/DarkModeToggle";
+import DarkModeToggle from "../components/ui/ui/Navbar";
 import Header from "../components/ui/ui/Header";
 import Loading from "./loading";
+import Provider from "../lib/Provider.jsx"
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -28,6 +29,7 @@ export default function RootLayout({
           "min-h-screen bg-background antialiased", inter.className
         )}
       >
+        <Provider>        
         <main>
           <ThemeProvider attribute="class">
           <Header /> 
@@ -35,7 +37,7 @@ export default function RootLayout({
         
       </ThemeProvider>
         </main>
-        
+        </Provider>
       </body>
     </html>
   );
