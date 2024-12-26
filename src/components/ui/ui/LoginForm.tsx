@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { signIn, signOut, getProviders } from "next-auth/react";
+import { signIn, signOut, getProviders ,ClientSafeProvider} from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,7 +44,10 @@ export default function LoginForm() {
   const [login, setLogin] = useState(true);
   const {data: session} = useSession();
 
-  const [providers, setProviders] = useState(null);
+
+  type ProvidersType = Record<string, ClientSafeProvider> | null;
+
+  const [providers, setProviders] = useState<ProvidersType>(null)
   
     
   const form = useForm<z.infer<typeof formSchema>>({
