@@ -4,13 +4,18 @@ import { connectToDB } from "../../../../Utils/database.js"
 import User from "../../../../models/user.js"
 
 const handler = NextAuth({
+  pages: {
+    signIn: '/login',
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET
     })
   ],
-  callbacks: {  // Add this callbacks object
+  callbacks: {  
+
+    //checking user session and returning
     async session({ session }) {
       try {
         const sessionUser = await User.findOne({

@@ -1,5 +1,6 @@
 
 "use client"
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React from 'react'
 import { AiOutlinePlus } from 'react-icons/ai';
@@ -8,11 +9,15 @@ function FrontPage() {
 
     const router = useRouter();
 
+    const {data : session} = useSession();
+
+  
+
 
   return (
     <>
     <div className="flex md:flex-row md:px-10 justify-around w-full mb-20">
-    <h1 className="text-lg md:text-xl font-semibold">Welcome to Ez Docs Sanis</h1>
+    <h1 className="text-lg md:text-xl font-semibold">Welcome to Ez Docs </h1>
   </div>
 
   {/* grid of documents */}

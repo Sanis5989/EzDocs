@@ -30,13 +30,12 @@ export default function RootLayout({
         )}
       >
         <Provider>        
-        <main>
-          <ThemeProvider attribute="class">
-          <Header /> 
-        {children}
-        
-      </ThemeProvider>
-        </main>
+          <main>
+            <ThemeProvider attribute="class">
+            <Header /> 
+            {children}
+          </ThemeProvider>
+          </main>
         </Provider>
       </body>
     </html>
