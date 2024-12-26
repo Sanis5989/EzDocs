@@ -21,13 +21,16 @@ export default function Navbar() {
 
   const { data: session } = useSession();
 
+  const image = session?.user?.image;
+
   
   return (
     <div className="flex justify-between items-center mb-5">
       <Image
       onClick={()=>{router.push("/")}}
       alt="logo"
-      src={theme === "dark" ? "/image.png" : "/image-black.png"}
+      src={ (theme === "dark" ? "/image.png" : "/image-black.png")}
+     
       width={120}
       height={150}
       className="mx-2 my-1 w-auto h-auto max-w-[85px] md:max-w-[170px] md:mx-4 md:my-2 cursor-pointer"
@@ -36,7 +39,7 @@ export default function Navbar() {
      
      {session?.user ? (
       <div className="m-6 cursor-pointer" onClick={()=>setToggleDropdown(!toggleDropdown)}>
-        <IoPersonCircleOutline size={50}/>
+       {image ? <Image src={image} width={50} height={50} className="rounded-full"/> : <IoPersonCircleOutline size={50}/>} 
         {toggleDropdown && (
         <div className=" absolute right-0 mt-2 w-48 rounded-lg shadow-lg border ">
           <div className="p-2 flex justify-center flex-col gap-2">

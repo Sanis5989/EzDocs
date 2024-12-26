@@ -29,7 +29,6 @@ export default withAuth({
 export function middleware(req : any) {
 
   const token = req.cookies.get("next-auth.session-token") || req.cookies.get("__Secure-next-auth.session-token");
-  console.log("Token:", token);
 
   const isLoggedIn = !!token;
   const isOnLoginPage = req.nextUrl.pathname === "/login";

@@ -9,15 +9,18 @@ function FrontPage() {
 
     const router = useRouter();
 
-    const {data : session} = useSession();
+    const {data : session, status} = useSession();
 
+    console.log(status)
   
-
+    if (status === "authenticated") {
+      console.log(`Signed in as ${session.user.email}`);
+    }
 
   return (
     <>
     <div className="flex md:flex-row md:px-10 justify-around w-full mb-20">
-    <h1 className="text-lg md:text-xl font-semibold">Welcome to Ez Docs </h1>
+    <h1 className="text-lg md:text-xl font-semibold">Welcome to Ez Docs {session?.user?.name} </h1>
   </div>
 
   {/* grid of documents */}
