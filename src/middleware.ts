@@ -31,12 +31,20 @@ export function middleware(req : any) {
   const token = req.cookies.get("next-auth.session-token") || req.cookies.get("__Secure-next-auth.session-token");
 
   const isLoggedIn = !!token;
-  const isOnLoginPage = req.nextUrl.pathname === "/login";
+  const isOnLoginPage = req.nextUrl.pathname === "/login" ;
+
+  const isOnRegisterPage = req.nextUrl.pathname === "/Signup";
   
   if (isOnLoginPage && isLoggedIn) {
     console.log("Redirecting logged-in user to dashboard");
+  
+   
     return NextResponse.redirect(new URL("/dashboard", req.url));
+  } 
+  if(isOnRegisterPage && isLoggedIn){
+      return NextResponse.redirect(new URL("/dashboard", req.url));
   }
+
 
   //redirecting non logged in user to login page
   if (!isOnLoginPage && !isLoggedIn) {
@@ -50,5 +58,5 @@ export function middleware(req : any) {
 
 
 export const config = {
-  matcher: ["/dashboard", "/", "/file/:path*", "/login"], // Protect these routes
+  matcher: ["/dashboard", "/", "/file/:path*", "/login", ], // Protect these routes
 };

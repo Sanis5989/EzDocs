@@ -30,7 +30,7 @@ export default function RootLayout({
         <Provider > 
                
           <main>
-            <ThemeProvider attribute="class">
+            <ThemeProvider attribute="class" defaultTheme="light">
             <Header /> 
             {children}
           </ThemeProvider>

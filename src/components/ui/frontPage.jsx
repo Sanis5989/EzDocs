@@ -14,6 +14,7 @@ function FrontPage() {
     console.log(status)
   
     if (status === "authenticated") {
+      console.log("seeshh",session.user)
       console.log(`Signed in as ${session.user.email}`);
     }
 
@@ -27,7 +28,7 @@ function FrontPage() {
   <div className="container mx-auto p-4" >
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto justify-items-center">
       <div onClick={()=>{
-    router.push("/file")
+    router.push("/file/1")
   }} className="w-[200px] md:w-[250px] aspect-[1/1.4142]  rounded-sm shadow-lg border-2 border-dashed border-gray-300 
         hover:border-blue-500 hover:bg-gray-50 transition-all duration-300 ease-in-out cursor-pointer
         flex flex-col items-center justify-center gap-4 p-4"

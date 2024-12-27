@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { signIn, signOut, getProviders ,ClientSafeProvider} from "next-auth/react";
+import { ToastContainer, toast } from 'react-toast'
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,21 +18,33 @@ import Link from "next/link";
 import { useState , useEffect} from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 
 const formSchema = z
   .object({
     email: z.string().email("Invalid email address"),
+    username:z.string().min(1, 'Username is required').max(100).trim(),
     password: z.string().min(6, "Password must be at least 6 characters"),
+    confirm_password: z.string().min(6, "Password must be at least 6 characters"),
+  })
+  .superRefine(({ password, confirm_password }, ctx) => {
+    if (password !== confirm_password) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["confirm_password"], // This will highlight the confirm_password field
+      });
+    }
   });
 
 
 
-export default function LoginForm() {
+
+
+
+export default function RegisterForm() {
   const [login, setLogin] = useState(true);
   const {data: session} = useSession();
-  const router = useRouter();
 
 
   type ProvidersType = Record<string, ClientSafeProvider> | null;
@@ -43,42 +56,40 @@ export default function LoginForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: ""
+      username:"",
+      password: "",
+      confirm_password: "",
     },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+
     console.log("Submitting form", data);
 
-    const { email, password } = data;
+    const { username, email, password } = data;
 
     try {
-      const response: any = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email,username, password }),
       });
-      console.log({ response });
-      if (!response?.error) {
-        router.push("/");
-        router.refresh();
-      }
-
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       // Process response here
-      console.log("Login Successful", response);
-      
+      console.log("Registration Successful", response);
+     
     } catch (error: any) {
-      console.error("Login Failed:", error);
-      
+      console.error("Registration Failed:", error);
+     
     }
+    console.log(data);
   }
 
-  function signUp(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+  
   useEffect(() => {
       (async () => {
         const res = await getProviders();
@@ -91,7 +102,7 @@ export default function LoginForm() {
       
         <>
           <div className="flex">
-            <h1 className="text-7xl m-5 text-center">Login into EZ Docs</h1>
+            <h1 className="text-7xl m-5 text-center">Sign Up EZ Docs</h1>
           </div>
           <Form {...form}>
             <form
@@ -118,6 +129,23 @@ export default function LoginForm() {
               />
               <FormField
                 control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem className="w-9/12">
+                    <FormControl className="w-full h-12 text-xl rounded-md">
+                      <input
+                        placeholder="Username"
+                        {...field}
+                        className="p-2"
+                        type="name"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem className="w-9/12">
@@ -133,35 +161,51 @@ export default function LoginForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="confirm_password"
+                render={({ field }) => (
+                  <FormItem className="w-9/12">
+                    <FormControl className="w-full h-12 text-xl rounded-md">
+                      <input
+                        type="password"
+                        placeholder="Confirm Password"
+                        {...field}
+                        className="p-2"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button
                 type="submit"
                 className="flex text-lg items-center"
                 size="lg"
               >
-                Log In
+                Sign Up
               </Button>
             </form>
           </Form>
           <p className="text-center m-5">
-            Dont have an account?{" "}
-            <Link href="/Signup">
-              Sign Up.
+            Already have an account?{" "}
+            <Link href="/login" onClick={() => setLogin(false)}>
+              Log In.
             </Link>
           </p>
           <div className="flex h-1 justify-center items-center m-3">
           {providers &&
           Object.values(providers).map((provider:any) => (
-            provider.name !== "Credentials" && (
-            <Button  key={provider.name}
+            (provider.name !== "Credentials" && <Button  key={provider.name}
                           onClick={() => {
-                            console.log(provider.name);
                             signIn(provider.id);
                           }}>
             <Image src={"/google.svg"} alt="google image logo" width={20} height={20} className="m-2"/>
             <p className="text-center text-lg font-light">
               Continue with Google{" "}
             </p>
-            </Button>)))}
+            </Button>)
+            ))}
           </div>
         </>
       </div>
