@@ -35,20 +35,18 @@ export function middleware(req : any) {
 
   const isOnRegisterPage = req.nextUrl.pathname === "/Signup";
   
-  if (isOnLoginPage && isLoggedIn) {
+  if (isLoggedIn && (isOnLoginPage || isOnRegisterPage)) {
     console.log("Redirecting logged-in user to dashboard");
-  
-   
     return NextResponse.redirect(new URL("/dashboard", req.url));
   } 
-  if(isOnRegisterPage && isLoggedIn){
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+  
+  // Allow unauthenticated access to login and signup pages
+  if (!isLoggedIn && (isOnLoginPage || isOnRegisterPage)) {
+    return NextResponse.next();
   }
 
-
-  //redirecting non logged in user to login page
-  if (!isOnLoginPage && !isLoggedIn) {
-    console.log("Redirecting non logged-in user to login page");
+  // Redirect unauthenticated users trying to access protected pages to the login page
+  if (!isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -58,5 +56,5 @@ export function middleware(req : any) {
 
 
 export const config = {
-  matcher: ["/dashboard", "/", "/file/:path*", "/login", ], // Protect these routes
+  matcher: ["/dashboard", "/", "/file/:path*", "/login", "/Signup" ], // Protect these routes
 };
