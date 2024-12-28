@@ -64,13 +64,16 @@ export default function LoginForm() {
         router.refresh();
       }
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      if (response?.error) {
+        // Display the error to the user
+        console.error("Login Failed:", response.error);
+        alert(response.error); // or show this in a UI component
+        return;
       }
-      // Process response here
       console.log("Login Successful", response);
       
     } catch (error: any) {
+
       console.error("Login Failed:", error);
       
     }
@@ -143,12 +146,19 @@ export default function LoginForm() {
             </form>
           </Form>
           <p className="text-center m-5">
-            Dont have an account?{" "}
+            Dont have an account ?{" "}
             <Link href="/Signup">
               Sign Up.
             </Link>
           </p>
-          <div className="flex h-1 justify-center items-center m-3">
+          <div className="flex h-1 justify-center items-center m-3 flex-col">
+            <p className="m-2">
+              Reset your password{" "}
+              <Link href={"/reset"} className="">
+                Reset
+          </Link>
+            </p>
+          
           {providers &&
           Object.values(providers).map((provider:any) => (
             provider.name !== "Credentials" && (

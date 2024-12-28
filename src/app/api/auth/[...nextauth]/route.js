@@ -28,6 +28,7 @@ const handler = NextAuth({
       async authorize(credentials, req) {
        let realSessionUser= ""
         console.log(credentials)
+        await connectToDB();
         try {
           const sessionUser = await AuthUser.findOne({
             email: credentials.email
@@ -38,8 +39,16 @@ const handler = NextAuth({
             });
           }
           console.log("session",sessionUser)
-          const isValidPassword = await compare(credentials.password, sessionUser.password);
-          console.log(isValidPassword)
+          let isValidPassword ;
+          
+          if(sessionUser){
+            isValidPassword = await compare(credentials.password, sessionUser.password);
+          }
+          if (!isValidPassword) {
+            console.log("Incorrect password");
+            throw new Error("Invalid email or password");
+            
+          }
           if (realSessionUser &&  isValidPassword) {
             return {
               id: realSessionUser._id.toString(),
@@ -51,6 +60,7 @@ const handler = NextAuth({
         }
         catch(err){
           console.log("error with email regi", err);
+          throw new Error(err.message);
         }
 
         return null;
@@ -96,10 +106,10 @@ const handler = NextAuth({
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id; // Include user ID
-        token.email = user.email; // Include email
-        token.name = user.name; // Include username
-        token.image = user.image; // Include image
+        token.id = user.id; 
+        token.email = user.email; 
+        token.name = user.name; 
+        token.image = user.image; 
       }
       return token;
     }

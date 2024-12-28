@@ -24,7 +24,7 @@ const formSchema = z
   .object({
     email: z.string().email("Invalid email address"),
     username:z.string().min(1, 'Username is required').max(100).trim(),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z.string().min(8, "Password must be at least 6 characters"),
     confirm_password: z.string().min(6, "Password must be at least 6 characters"),
   })
   .superRefine(({ password, confirm_password }, ctx) => {
@@ -77,7 +77,18 @@ export default function RegisterForm() {
         body: JSON.stringify({ email,username, password }),
       });
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const errorData = await response.json();
+        console.error("Error:", errorData.message);
+        alert(errorData.message); // Show user-friendly error message
+        return;
+      }
+      if(response.status == 201){
+        console.log("Account created succesfully")
+        await signIn("credentials", {
+          email,
+          password,
+          redirect: true,
+        });
       }
       // Process response here
       console.log("Registration Successful", response);
