@@ -48,6 +48,7 @@ function Page() {
           if(!response.ok){
             console.log(data)
             toast.error(data.message)
+            return;
           }
           toast.success(data.message)
 
