@@ -56,12 +56,8 @@ function ResetPage() {
           },
           body: JSON.stringify({ token,password}),
         });
-
-          console.log(JSON.stringify({ token,password}))
   
         const data = await response.json();
-        console.log(data)
-  
         if (!response.ok) {
           toast.error(data.message)
           throw new Error(data.message || "Failed to reset password.");

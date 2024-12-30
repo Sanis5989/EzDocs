@@ -22,7 +22,7 @@ const formSchema = z.object({
     email : z.string().email("Invalid email address")
 })
 
-function page() {
+function Page() {
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -128,4 +128,4 @@ function page() {
   )
 }
 
-export default page
+export default Page
