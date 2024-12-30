@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import {toast } from "react-hot-toast"
 import {
   Form,
   FormControl,
@@ -15,23 +16,63 @@ import {
 import Link from "next/link";
 import { useState , useEffect} from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter }  from "next/navigation";
+
+// import { useRouter } from 'next/router';
 
 const formSchema = z.object({
-    email : z.string().email("Invalid email address")
-})
+    password : z.string().min(6, "Password must be at least 6 characters"),
+    confirm_password: z.string().min(6, "Password must be at least 6 characters")
+}).superRefine(({ password, confirm_password }, ctx) => {
+  if (password !== confirm_password) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Passwords do not match",
+      path: ["confirm_password"], // This will highlight the confirm_password field
+    });
+  }});
 
-function page() {
+function ResetPage() {
+
+    // const router = nextRouter();
+    const routerNext  = useRouter();
+    const { token } = useParams();
 
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues:{
-            email:""
+            password:"",
+            confirm_password:""
         }
     })
 
-    const onSubmit = (data)=>{
-        console.log("reset email",data);
+    const onSubmit = async (data)=>{
+      const { password } = data;
+      try {
+        const response = await fetch("/api/auth/reset", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token,password}),
+        });
+
+          console.log(JSON.stringify({ token,password}))
+  
+        const data = await response.json();
+        console.log(data)
+  
+        if (!response.ok) {
+          toast.error(data.message)
+          throw new Error(data.message || "Failed to reset password.");
+        }
+        toast.success(data.message)
+        setTimeout(() => routerNext.push("/login"), 4000); // Redirect to login after success
+      } catch (err) {
+        toast.error(err.message)
+        console.log(err);
+        return err;
+      }
     }
 
   return (
@@ -65,19 +106,38 @@ function page() {
           >
             <FormField
               control={form.control}
-              name="email"
+              name="password"
               render={({ field }) => (
                 <FormItem className="w-9/12">
                   <FormControl className="w-full h-12 text-xl rounded-md">
                     <input
-                      placeholder="Email"
+                      placeholder="Password"
                       {...field}
                       className="p-2"
-                      type="email"
+                      type="password"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
+                
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirm_password"
+              render={({ field }) => (
+                <FormItem className="w-9/12">
+                  <FormControl className="w-full h-12 text-xl rounded-md">
+                    <input
+                      placeholder="Confirm Password"
+                      {...field}
+                      className="p-2"
+                      type="password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+                
               )}
             />
 
@@ -105,4 +165,4 @@ function page() {
   )
 }
 
-export default page
+export default ResetPage

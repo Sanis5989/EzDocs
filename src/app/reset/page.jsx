@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useState , useEffect} from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from 'react-hot-toast';
 
 const formSchema = z.object({
     email : z.string().email("Invalid email address")
@@ -43,6 +44,14 @@ function page() {
             },
             body: JSON.stringify({ email }),
           });
+          const data = await  response.json()
+          if(!response.ok){
+            console.log(data)
+            toast.error(data.message)
+          }
+          toast.success(data.message)
+
+          console.log(response.resetUrl)
         } catch (error) {
           console.log(error)
         }
