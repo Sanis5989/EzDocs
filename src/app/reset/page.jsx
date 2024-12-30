@@ -52,7 +52,7 @@ function Page() {
           }
           toast.success(data.message)
 
-          console.log(response.resetUrl)
+          console.log(data.resetUrl)
         } catch (error) {
           console.log(error)
         }
