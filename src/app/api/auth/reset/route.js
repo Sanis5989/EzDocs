@@ -4,6 +4,7 @@ import User from "../../../../models/user.js";
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
 import AuthUser from "@/models/authUser.js";
+import { sendResetEmail } from "../../../../lib/mail.js";
 
 export async function POST(req) {
   try {
@@ -36,16 +37,22 @@ export async function POST(req) {
 
     // Log the token to the console
     console.log("Generated JWT Token:", userToken);
+    const sentMail = await sendResetEmail(email,userToken);
     console.log("email sent")
     console.log("url",url)
     await disconnectToDB();
 
-    // Respond with success
+    if(sentMail){
+      // Respond with success
     return NextResponse.json({
       message: "An email has been sent to you to reset your password.",
       token: userToken, // Optional: Include the token for debugging
       resetUrl: url, // Optional: Include the URL for debugging
     });
+    }else{
+      throw new Error("Error while sending mail")
+    }
+    
   } catch (error) {
     console.error("Error in generating JWT token:", error);
     return NextResponse.json({

@@ -13,6 +13,7 @@ import { useTheme } from 'next-themes';
 import mammoth from 'mammoth';
 import  ImageResize  from 'quill-image-resize-module-react';
 import DraggableImage from '../../Utils/DraggableImage';
+import { useSession } from 'next-auth/react';
 
 
 
@@ -25,6 +26,7 @@ Quill.register("modules/imageResize", ImageResize);
 Quill.register('modules/draggableImage', DraggableImage);
 
 export default function Editor({ documentId }) {
+  const {data : session, status} = useSession();
   const [quill, setQuill] = useState(null);
   const reactQuillRef = useRef(null);
   // maintaining a4 size
@@ -35,6 +37,18 @@ export default function Editor({ documentId }) {
   const [exporthHeight, setExportHeight] = useState()
   
 
+  //function to get a random color for the cursor
+  // Define colors array once
+  const COLORS = [
+    '#FF3366',  // vibrant pink/red - great visibility on both themes
+    '#00CC99',  // bright turquoise - pops on dark, readable on light
+    '#FF9900',  // vivid orange - excellent contrast on both
+    '#6633FF',  // bright purple - stands out on both themes
+    '#00CCFF'   // electric blue - high visibility on both
+  ]
+
+    // Function to get random color 
+    const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)]
 
   //setting the quill instance
   useEffect(() => {
@@ -145,8 +159,8 @@ export default function Editor({ documentId }) {
 
       provider.awareness.setLocalState({
         user: {
-          name: 'User Name',
-          color: '#FF0000',
+          name: session?.user?.name,
+          color: getRandomColor(),
         },
         cursor: null, // or set the initial cursor state as needed
       });
@@ -160,8 +174,8 @@ export default function Editor({ documentId }) {
           });
       
           provider.awareness.setLocalStateField('user', {
-            name: 'User Name',  // Ensure this is dynamic per user
-            color: '#FF0000',   // Ensure this is unique per user
+            name: session?.user?.name,  // Ensure this is dynamic per user
+            color: getRandomColor(),   // Ensure this is unique per user
           });
         }
       });
