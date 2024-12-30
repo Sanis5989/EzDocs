@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
-import { connectToDB } from "../../../../Utils/database.js";
+import { connectToDB, disconnectToDB } from "../../../../Utils/database.js";
 import User from "../../../../models/user.js";
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
+import AuthUser from "@/models/authUser.js";
 
 export async function POST(req) {
   try {
@@ -37,6 +38,7 @@ export async function POST(req) {
     console.log("Generated JWT Token:", userToken);
     console.log("email sent")
     console.log("url",url)
+    await disconnectToDB();
 
     // Respond with success
     return NextResponse.json({
@@ -65,19 +67,22 @@ export async function PUT (req,res) {
     const decoded = jwt.verify(token, process.env.RESET_TOKEN_SECRET);
     const { id: user_id } = decoded;
     const user = await User.findById(user_id);
-    if (!user) {
+    
+    if (!user ) {
       return NextResponse.json({ message: "Account does not exist." }, { status: 400 });
     
     }
-    // const hashedPassword = await hash(password, 12);
-    // await user.updateOne({
-    //   password: hashedPassword,
-    // });
-    console.log(user);
+    const email = user.email;
+    const authUser = await AuthUser.findOne({ email })
+    console.log("auth user" , authUser)
+    const hashedPassword = await hash(password, 10);
+    await authUser.updateOne({
+      password: hashedPassword,
+    });
     console.log("password changed")
+    await disconnectToDB();
     return NextResponse.json({ email: user.email, message: "Password changed." }, { status: 200 });
-    // res.status(200).json({ email: user.email });
-    // you should disconnect the db 
+    
   } catch (error) {
     console.log(error.message)
     return NextResponse.json({ message: error.message }, { status: 500 });

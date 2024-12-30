@@ -23,3 +23,25 @@ export const connectToDB = async () => {
     return isConnected;
   }
 };
+
+export const disconnectToDB = async () => {
+  mongoose.set("strictQuery", true);
+  
+  if(!isConnected) {
+    console.log('MongoDB is already disconnected');
+    return;
+  }
+
+  try {
+    await mongoose.disconnect(process.env.MONGODB_URI, {
+      dbName: 'ez_docs'
+    });
+    
+    isConnected = false;
+    console.log("DB disconnected.");
+    return isConnected;
+  } catch (error) {
+    console.log(error);
+    return isConnected;
+  }
+};
