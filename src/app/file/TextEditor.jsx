@@ -14,7 +14,9 @@ import mammoth from 'mammoth';
 import  ImageResize  from 'quill-image-resize-module-react';
 import DraggableImage from '../../Utils/DraggableImage';
 import { useSession } from 'next-auth/react';
-
+import { IoIosSave } from "react-icons/io";
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -26,6 +28,8 @@ Quill.register("modules/imageResize", ImageResize);
 Quill.register('modules/draggableImage', DraggableImage);
 
 export default function Editor({ documentId }) {
+  const[error, setError] = useState(false);
+  const [content, setContent] = useState('');
   const {data : session, status} = useSession();
   const [quill, setQuill] = useState(null);
   const reactQuillRef = useRef(null);
@@ -33,8 +37,13 @@ export default function Editor({ documentId }) {
   const [editorWidth, setEditorWidth] = useState(210 * 3.7795275591);
   const { theme} = useTheme();
   const fileInputRef = useRef(null);
+  const [fetchedFile, setFetchedFile]= useState({
+    _id:"",
+    content:""
+  });
 
-  const [exporthHeight, setExportHeight] = useState()
+  const [exporthHeight, setExportHeight] = useState();
+
   
 
   //function to get a random color for the cursor
@@ -49,6 +58,38 @@ export default function Editor({ documentId }) {
 
     // Function to get random color 
     const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)]
+
+    useEffect(() => {
+      // Fetch content from the backend
+      const fetchContent = async () => {
+        try {
+          const response = await fetch(`/api/file?id=${documentId}`, {
+            method: 'GET',
+           
+          });
+      
+          const result = await response.json();
+          
+          if (response.ok) {
+            const { _id, content} = result;
+            setFetchedFile({_id,content});
+            
+          } else {
+            setError(true);
+            console.error('Error fetching content:', result.error);
+          }
+        } catch (error) {
+          setError(true);
+          console.error('Error in fetchContent:', error);
+        }
+      };
+  
+      fetchContent();
+    }, [documentId]);
+
+    useEffect(() => {
+      setContent(fetchedFile.content);
+    }, [fetchedFile]);
 
   //setting the quill instance
   useEffect(() => {
@@ -125,6 +166,7 @@ export default function Editor({ documentId }) {
   //connnecting to the socket and exchanging data
   useEffect(() => {
     if (quill) {
+  
       const ydoc = new Y.Doc();
       const provider = new WebsocketProvider(
         'https://ezdocssocket.onrender.com',
@@ -259,7 +301,7 @@ export default function Editor({ documentId }) {
     reader.readAsArrayBuffer(file);
   };
 
-
+  //function to update quill with image and text content
   const updateQuillContents = (image, rect) => {
     const blot = Quill.find(image);
     if (blot) {
@@ -275,144 +317,8 @@ export default function Editor({ documentId }) {
       ]);
     }};
 
-  //export to pdf function
-//   const exportToPDF = () => {
-//     if (!quill) return;
-  
-//     console.log("Starting PDF export process");
-  
-//     const tempDiv = document.createElement('div');
-//     tempDiv.innerHTML = quill.root.innerHTML;
-//     console.log("Quill content copied to temp div");
-  
-//     tempDiv.style.width = '210mm';
-//     tempDiv.style.minHeight = '297mm';
-//     tempDiv.style.padding = '10mm';
-//     tempDiv.style.backgroundColor = 'white';
-//     tempDiv.style.color = 'black';
-//     tempDiv.style.position = 'relative';
-  
-//     const images = tempDiv.querySelectorAll('img');
-//     console.log(`Found ${images.length} images in the content`);
-  
-//     const imagePromises = Array.from(images).map(img => {
-//       return new Promise((resolve, reject) => {
-//         if (img.complete) {
-//           console.log(`Image already loaded: ${img.src}`);
-//           processImage(img);
-//           resolve();
-//         } else {
-//           img.onload = () => {
-//             console.log(`Image loaded: ${img.src}`);
-//             processImage(img);
-//             resolve();
-//           };
-//           img.onerror = () => {
-//             console.error(`Failed to load image: ${img.src}`);
-//             reject();
-//           };
-//         }
-//       });
-//     });
-  
-//     function processImage(img) {
-//       // Get the width and height from the image attributes or computed style
-//       const width = img.getAttribute('width') || img.style.width || img.naturalWidth;
-//       // const height = img.getAttribute('height') || img.style.height || img.naturalHeight;
-//       const height = exporthHeight;
-      
-//       if (width && height) {
-//         img.style.width = typeof width === 'number' ? `${width}px` : width;
-//         img.style.height = typeof height === 'number' ? `${height}px` : height;
-//       }
-      
-//       // Handle any translation (dragging) that was applied
-//       const style = img.getAttribute('style') || '';
-//       const transformMatch = style.match(/transform:\s*translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
-      
-//       if (transformMatch) {
-//         const translateX = parseFloat(transformMatch[1]);
-//         const translateY = parseFloat(transformMatch[2]);
-        
-//         const wrapper = document.createElement('div');
-//         wrapper.style.display = 'inline-block';
-//         wrapper.style.transform = `translate(${translateX}px, ${translateY}px)`;
-//         img.style.transform = 'none'; // Remove transform from the image
-//         img.parentNode.insertBefore(wrapper, img);
-//         wrapper.appendChild(img);
-//       }
-      
-//       // Log image details
-//       console.log(`Image processed:  width=${img.style.width}, height=${img.style.height}, transform=${img.style.transform || 'none'}`);
-//     }
-  
-//     // Apply custom Quill styles
-//     const styleElement = document.createElement('style');
-// styleElement.textContent = `
-//     * {
-//         box-sizing: border-box;
-//     }
 
-//     h1 { font-size: 38.4px !important; }
-//     h2 { font-size: 25.6px !important; }
-//     h3 { font-size: 19.2px !important; }
-//     p { font-size: 14.4px !important; line-height: 1.42; }
-//     ul, ol {
-//         font-size: 14.4px;
-//         margin: 0;
-//         padding-left: 20px;
-//         vertical-align: baseline !important;
-//         line-height: 1.42;
-//     }
-//     li {
-//         font-size: 14.4px;
-//         margin: 0;
-//         padding: 0;
-//         line-height: 1.42; /* Adjust line-height for better alignment */
-//         vertical-align: baseline !important;
-//     }
-// `;
-
-// tempDiv.appendChild(styleElement);
-// tempDiv.style.boxSizing = 'border-box';
-// tempDiv.style.width = '210mm';  // Ensuring it matches A4 size
-// tempDiv.style.padding = '20mm'; // Optional, for content padding
-
-// // Append the temp div to the body
-// document.body.appendChild(tempDiv);
-// console.log("Temp div appended to body", tempDiv);
-
-//     // Wait for all images to load before generating PDF
-//     Promise.all(imagePromises).then(() => {
-//       console.log("All images loaded, generating PDF");
-  
-//       const opt = {
-//         margin: 1,
-//         filename: 'document.pdf',
-//         image: { type: 'jpeg', quality: 0.98 },
-//         html2canvas: { 
-//           scale: 2,
-//           logging: true,
-//           scrollX: 0,
-//         scrollY: 0,
-//           onrendered: function(canvas) {
-//             console.log("html2canvas rendering complete");
-//           }
-//         },
-//         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-//       };
-  
-//       html2pdf().set(opt).from(tempDiv).save().then(() => {
-//         console.log("PDF generation complete");
-//         document.body.removeChild(tempDiv);
-//       }).catch(error => {
-//         console.error("Error generating PDF:", error);
-//       });
-//     }).catch(error => {
-//       console.error("Error loading images:", error);
-//     });
-//   };]
-
+//export to pdf function
 const exportToPDF = () => {
   if (!quill) return;
 
@@ -565,6 +471,38 @@ const exportToPDF = () => {
     console.error("Error loading images:", error);
   });
 };
+
+
+//function to save file content in database
+const saveToDb = async ()=>{
+  if(!quill){
+    toast.error("Error");
+    return;
+  }
+
+  try {
+    const content = quill.root.innerHTML;
+    const res = await fetch("/api/file",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({content,_id:documentId}),
+    });
+    if(res.ok){
+       toast.success("File saved.")
+ 
+    }
+   
+  } catch (error) {
+
+    toast.error(error)
+    console.log(error);
+  }
+
+   
+}
+
   
 
   //styles
@@ -668,8 +606,14 @@ const customQuillStyles = `
   
  
   return (
+    
     <>
-      <style>{toolbarButtonStyle}</style>
+    { error ? 
+      (<div>
+        Error loading file
+      </div>) : 
+      <div>
+<style>{toolbarButtonStyle}</style>
       <style>{customQuillStyles}</style>
 
       <div style={tolbarContainerStyle}><input
@@ -728,14 +672,15 @@ const customQuillStyles = `
             }}
             ref={reactQuillRef}
             style={editorStyle}
+            value={content}
           />
         </div>
       </div>
-    <div className='flex'>
+    <div className='flex flex-row gap-2'>
       <button 
         onClick={exportToPDF} 
         style={theme ==="dark" ? {color:"black"} : {color:"white"}}
-        className="flex fixed bottom-5 right-24 px-4 py-2 text-lg rounded-3xl shadow-lg z-50 text-black">
+        className="flex fixed bottom-5 right-16 px-4 py-2 text-lg rounded-3xl shadow-lg z-50 text-black">
         {theme === "dark" ? (
           <FaFileExport size={28}  className='mx-2'/>
             ) : (
@@ -744,7 +689,22 @@ const customQuillStyles = `
         }
         Export
       </button>
+      <button 
+        onClick={saveToDb} 
+        style={theme ==="dark" ? {color:"black"} : {color:"white"}}
+        className="flex fixed bottom-5 right-64 px-4 py-2 text-lg rounded-3xl shadow-lg z-50 text-black">
+        {theme === "dark" ? (
+          <IoIosSave size={28}  className='mx-2'/>
+            ) : (
+          <IoIosSave color="white" size={28}  className='mx-2'/>
+          )
+        }
+        Save
+      </button>
     </div>
+      </div>  
+    }
+      
       
     </>
   );

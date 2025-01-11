@@ -1,6 +1,7 @@
 import { match } from 'assert';
 import { Schema, model, models } from 'mongoose';
 import { type } from 'os';
+import { string } from 'zod';
 
 const UserSchema = new Schema({
     email:{
@@ -15,7 +16,8 @@ const UserSchema = new Schema({
     },
     image: {
         type: String,
-      }
+      },
+    fileOwned:[String]
 });
 
 const User = models.User || model("User", UserSchema);

@@ -77,28 +77,35 @@ const handler = NextAuth({
       if (account?.provider === "google") {
         try {
           await connectToDB();
-          
+  
           const userExists = await User.findOne({ email: profile.email });
-          
+  
           if (!userExists) {
-            await User.create({
+            const newUser = await User.create({
               email: profile.email,
               username: profile.name.replace(" ", "").toLowerCase(),
               image: profile.picture
             });
+            
+            // Add the MongoDB _id to the user object
+            user.id = newUser._id.toString();  // Ensure it's in string format
+          } else {
+            // If user exists, get the existing user's _id
+            user.id = userExists._id.toString();  // Ensure it's in string format
           }
-          return true;
+          
         } catch (error) {
           console.log("SignIn error: ", error);
           return false;
         }
       }
-      
+  
       return true;
     },
     async session({ session, token }) {
       if (session?.user) {
-        session.user.id = token.id; // Add user ID
+        session.user.id = token._id; // MongoDB _id
+        // session.user.id = token.id; // You can still keep the token id if you want
         session.user.name = token.name; // Add username
         session.user.image = token.image; // Add image
       }
@@ -106,15 +113,18 @@ const handler = NextAuth({
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id; 
-        token.email = user.email; 
-        token.name = user.name; 
-        token.image = user.image; 
+        // Store the MongoDB _id in the JWT token
+        token._id = user.id; // Store MongoDB _id (already in string format)
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
       }
       return token;
     }
-    
   }
+  
+    
+  
 });
 
 export { handler as GET, handler as POST }
