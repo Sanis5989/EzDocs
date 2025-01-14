@@ -65,7 +65,7 @@ export async function GET(req) {
 
       console.log("received",id)
       const response = await File.findById(id); // Fetch the document by ID
-      await disconnectToDB();
+
   
       if (!response) {
         return NextResponse.json({ error: 'File not found' }, { status: 404 });

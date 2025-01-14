@@ -36,10 +36,10 @@ function FrontPage() {
             method:"GET",
           })
           const result = await file.json();
-          if (Array.isArray(result.files.fileOwned)) {
+          if (result.files && Array.isArray(result.files.fileOwned)) {
             setFiles(result.files.fileOwned);
           } else {
-            console.error("API returned a non-array value for files",result.files.fileOwned);
+            console.error("API returned a non-array value for files",result);
           }
         }
         if(session?.user){
@@ -105,7 +105,15 @@ function FrontPage() {
         </div>
         <p className="text-base  text-gray-500 font-medium">Create New Document</p>
       </div>
-      <Dialog isOpen={isOpen}
+   
+
+{files && files.map((data) => (
+  <FileDash title={data} key={data} path={data}/>
+))}
+
+      
+    </div>
+  </div>   <Dialog isOpen={isOpen}
       onClose={() => setIsOpen(false)}
       onSubmit={(value) => createFile(value)}
       title="Title"
@@ -114,18 +122,6 @@ function FrontPage() {
       submitButtonText="Save"
       cancelButtonText="Close"
       className="custom-class"/>
-      {/* <div onClick={()=>{setIsOpen(true)}}>
-        <FileDash title={"hehe"}/>
-      </div> */}
-
-
-{files && files.map((data) => (
-  <FileDash title={data} key={data} path={data}/>
-))}
-
-      
-    </div>
-  </div>
   </>
   )
 }

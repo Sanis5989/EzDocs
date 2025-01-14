@@ -44,6 +44,12 @@ export default function Editor({ documentId }) {
 
   const [exporthHeight, setExportHeight] = useState();
 
+  const [socketProvider,setSocketProvider] =useState("disconnected");
+  const [isContentLoaded, setIsContentLoaded] = useState(false);
+  // useEffect(() => {
+    
+    
+  // }, [quill, fetchedFile.content]);
   
 
   //function to get a random color for the cursor
@@ -62,18 +68,22 @@ export default function Editor({ documentId }) {
     useEffect(() => {
       // Fetch content from the backend
       const fetchContent = async () => {
+        console.log("state",socketProvider)
+        if(socketProvider === "connected"){
+          console.log("exit fecth")
+            return
+        }
         try {
           const response = await fetch(`/api/file?id=${documentId}`, {
             method: 'GET',
-           
+
           });
-      
+      console.log("fetced")
           const result = await response.json();
           
           if (response.ok) {
             const { _id, content} = result;
             setFetchedFile({_id,content});
-            
           } else {
             setError(true);
             console.error('Error fetching content:', result.error);
@@ -83,12 +93,30 @@ export default function Editor({ documentId }) {
           console.error('Error in fetchContent:', error);
         }
       };
+      
   
       fetchContent();
     }, [documentId]);
 
     useEffect(() => {
-      setContent(fetchedFile.content);
+      // setContent(fetchedFile.content);
+      const overwriteContentWithFetchedData = () => {
+        if (quill) {
+          // Overwrite the socket document with the latest fetched data
+          quill.setContents(fetchedFile.content);
+          setContent(fetchedFile.content)
+          console.log("this is overwrite", fetchedFile.content)
+        }
+      };
+    
+      // Trigger the overwrite when either `quill` or `fetchedFile.content` changes
+      setTimeout(()=>{
+        if (quill && fetchedFile.content) {
+          
+          overwriteContentWithFetchedData();
+      }
+    },[1000])
+      console.log("fetched",content)
     }, [fetchedFile]);
 
   //setting the quill instance
@@ -173,15 +201,19 @@ export default function Editor({ documentId }) {
         documentId,
         ydoc
       );
-      provider.on('status', (event) => {
-        console.log('Provider status:', event.status);
-      });
-  
-      const ytext = ydoc.getText('quill');
+
+      // Listen for status changes
+    provider.on('status', (event) => {
+      setSocketProvider(event.status); // Update provider state
+      console.log('Provider status:', event.status);
+    });
+      
+      const ytext = ydoc.getText("quill");
+
       const binding = new QuillBinding(ytext, quill);
+
       // Initialize the cursor module
       const cursorsModule = quill.getModule('cursors');
-
       // Listen to Yjs awareness updates and reflect them in the Quill editor
       provider.awareness.on('update', () => {
         provider.awareness.getStates().forEach((state, clientId) => {
@@ -227,7 +259,7 @@ export default function Editor({ documentId }) {
         ydoc.destroy();
       };
     }
-  }, [quill, documentId]);
+  }, [quill, documentId, fetchedFile.content, isContentLoaded]);
 
   // //maintaining a4 size
   // useEffect(() => {
