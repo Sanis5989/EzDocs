@@ -53,7 +53,7 @@ const FileDash = ({ title, path ,UID,fileId}) => {
       headers:{
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({id: UID, newFile:fileId, email:email})
+      body: JSON.stringify({ newFile:fileId, email:email})
     })
     const body = await response.json()
     console.log("response from file access", body)
@@ -62,8 +62,7 @@ const FileDash = ({ title, path ,UID,fileId}) => {
       return;
     }
     toast.error("Error updating file access");
-    
-    
+  
   }
   }
 

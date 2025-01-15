@@ -18,6 +18,10 @@ const EditorPage =  () => {
   const {data : session, status} = useSession();
   const fileId = params.fileId;
 
+  const secret = new TextEncoder().encode(
+    process.env.NEXT_PUBLIC_FILE_TOKEN
+  );
+
  
 
   useEffect(()=>{
@@ -28,16 +32,51 @@ const EditorPage =  () => {
     const data = await response.json();
     const files = data?.files?.fileOwned;
 
-    if(files.includes(fileId))
-{
-  setAccessFile(true);
-  console.log("accesss")
-}
-  console.log("files owned", files)
-}
+    if(files?.includes(fileId))
+    {
+      setAccessFile(true);
+    }
+    }
 
-methu();
-  },[status])
+    const checkShareAccess = async ()=>{
+
+      //fetching access list files from db
+      const response = await fetch(`/api/updateFileaccess?id=${session?.user?.id}`,{
+      method:"GET",
+      });
+      const data = await response.json();
+      const accessFiles = data?.filesAccess?.fileAccess;
+
+      const {payload} = await jwtVerify(fileId,secret);
+      const FID = payload?.id;
+
+      console.log(accessFiles)
+      if(accessFiles?.includes(FID)){
+        setAccessFile(true);
+      }
+    }
+    methu();
+    checkShareAccess();
+  },[status]);
+
+  //checking file shared 
+  // useEffect(()=>{
+  //   const checkShareAccess = async ()=>{
+
+  //     //fetching access list tokens from db
+  //     const response = await fetch(`/api/updateFileaccess?id=${session?.user?.id}`,{
+  //     method:"GET",
+  //     });
+  //     const data = await response.json();
+  //     const accessFiles = data?.filesAccess?.fileAccess;
+
+  //     console.log(accessFiles)
+  //     // if(accessFiles?.includes(fileId)){
+  //     //   setAccessFile(true);
+  //     // }
+  //   }
+  //   checkShareAccess();
+  //   },[])
   
   console.log("this is the id for ydoc", fileId);
 
