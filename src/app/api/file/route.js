@@ -2,6 +2,7 @@ import { title } from "process";
 import { connectToDB, disconnectToDB } from "../../../Utils/database";
 import File from "../../../models/file";
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken"
 
 export async function POST (req){
     try {
@@ -27,7 +28,7 @@ export async function POST (req){
                 { status: 200 }
               );
        }
-       else{
+       else{ 
         //create a file in database
         const response = await File.create({title: title});
         if(response){
@@ -56,7 +57,10 @@ export async function GET(req) {
   
       // Extract query parameters from the request URL
       const { searchParams } = new URL(req.url);
-      const id = searchParams.get('id'); // Get 'id' from the query string
+      const token = searchParams.get('id'); // Get 'id' from the query strin
+
+      const decoded = await jwt.verify(token,process.env.NEXT_PUBLIC_FILE_TOKEN);
+      const {id} = decoded;
   
       if (!id) {
         return NextResponse.json({ error: 'ID is required' }, { status: 400 });

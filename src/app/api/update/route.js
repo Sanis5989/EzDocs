@@ -1,44 +1,28 @@
 import { NextResponse } from "next/server";
 import User from "../../../models/user";
 import { connectToDB } from "@/Utils/database";
+import jwt from "jsonwebtoken"
 
 export async function POST(req){
-
-    // const { pathname } = new URL(req.url);
-  
-    // try {
-    //     switch (pathname) {
-
-    //     case '/api/update/file-owned':
             const updateData = await req.json();
             const { id, newFile} = updateData;
 
+            // Generate a JWT token for the user
+          const userFileToken = await jwt.sign({ user_id: id , id: newFile },  process.env.NEXT_PUBLIC_FILE_TOKEN);
+
             try {
                 const updatedUser = await User.findByIdAndUpdate(id,
-                    {$push: {fileOwned: newFile}},
+                    {$push: {fileOwned: userFileToken}},
                     {new: true});
-                console.log("user updated",updatedUser)
+                console.log("user updated",userFileToken)
                 if(!updatedUser){
                     return NextResponse.json({message:"User not found; File not created"}, {status:400})
                 }
-                return NextResponse.json({message:"Added new file"}, {status:200})
+                return NextResponse.json({message:"Added new file",token:userFileToken}, {status:200})
             } catch (error) {
                 console.log(error);
                 return NextResponse.json({message: error}, {status:500})
             }
-            
-        // case '/api/users/delete':
-        //     const deleteData = await req.json();
-        //     return Response.json(await deleteUser(deleteData));
-            
-        // default:
-        //     return Response.json({ error: 'Invalid endpoint' }, { status: 404 });
-        // }
-    // } 
-    // catch (error) {
-    //     return Response.json({ error: error.message }, { status: 500 });
-    // }
-
 }
 export async function GET(req) {
     try {
@@ -47,6 +31,7 @@ export async function GET(req) {
       // Extract query parameters from the request URL
       const { searchParams } = new URL(req.url);
       const id = searchParams.get("id"); // Get 'id' from the query string
+      console.log("id is" , id)
   
       if (!id) {
         return NextResponse.json(

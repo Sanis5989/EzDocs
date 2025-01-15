@@ -78,7 +78,7 @@ export default function Editor({ documentId }) {
             method: 'GET',
 
           });
-      console.log("fetced")
+          console.log("fetced")
           const result = await response.json();
           
           if (response.ok) {
@@ -116,7 +116,6 @@ export default function Editor({ documentId }) {
           overwriteContentWithFetchedData();
       }
     },[1000])
-      console.log("fetched",content)
     }, [fetchedFile]);
 
   //setting the quill instance
@@ -198,7 +197,7 @@ export default function Editor({ documentId }) {
       const ydoc = new Y.Doc();
       const provider = new WebsocketProvider(
         'https://ezdocssocket.onrender.com',
-        documentId,
+        fetchedFile._id,
         ydoc
       );
 
@@ -519,7 +518,7 @@ const saveToDb = async ()=>{
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({content,_id:documentId}),
+      body: JSON.stringify({content,_id:fetchedFile._id}),
     });
     if(res.ok){
        toast.success("File saved.")
@@ -655,9 +654,9 @@ const customQuillStyles = `
         style={{ display: 'none' }}
         ref={fileInputRef}
       />
-      <button onClick={() => fileInputRef.current.click()}>
+      {/* <button onClick={() => fileInputRef.current.click()}>
         <FaFileImport size={24} />
-      </button>
+      </button> */}
         <div id="custom-toolbar" style={toolbarStyle}>
           <select className="ql-header" defaultValue="">
             <option value=""></option>

@@ -17,7 +17,8 @@ const UserSchema = new Schema({
     image: {
         type: String,
       },
-    fileOwned:[String]
+    fileOwned:[String],
+    fileAccess:[String]
 });
 
 const User = models.User || model("User", UserSchema);

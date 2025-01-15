@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "firebase": "^10.13.0",
     "html2pdf.js": "^0.10.2",
+    "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",

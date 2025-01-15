@@ -81,7 +81,7 @@ const Dialog = ({
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={"Enter a title"}
+              placeholder={placeholder}
               className="w-full px-3 py-2 border mb-4 "
               autoFocus
             />

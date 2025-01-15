@@ -8,7 +8,8 @@ import FileDash from "./FileDash"
 import Dialog from "./ui/Dialog"
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { update } from 'lodash';
+import { forEach, update } from 'lodash';
+import jwt from "jsonwebtoken";
 
 
 function FrontPage() {
@@ -20,6 +21,8 @@ function FrontPage() {
     const {data : session, status} = useSession();
 
     const[files, setFiles] = useState();
+
+    const[file, setFile] =useState();
 
     console.log(status)
   
@@ -42,23 +45,60 @@ function FrontPage() {
             console.error("API returned a non-array value for files",result);
           }
         }
+
+        
         if(session?.user){
           getFiles();
         }
         
+        forEach()
       
     
     },[status])
 
+
+    useEffect(()=>{
+      //function to fetch file names
+      async function fetchFileTitle(token) {
+        console.log("para",token)
+        const fileDetail = await fetch(`/api/file?id=${token}`,{
+          method:"GET",
+          headers:{
+            "Content-Type": "application/json",
+          }
+        });
+
+        let res = await fileDetail.json();
+        
+        return{
+          ...res,
+          token: token 
+        };
+
+      }
+      const arr = [];
+      files?.forEach(async (data)=>{
+        const body = await fetchFileTitle(data)
+        arr.push(body);
+        setFile(arr);
+      })
+    },[files])
+
+
+    useEffect(()=>{
+      console.log("is arr of all files",file)
+    },[file])
     //method to create a new file and save in database
     const createFile = async (title)=>{
+        
+      
       try {
         console.log("received", title )
         const response = await fetch("api/file", 
           {
             method:"POST",
             headers:{
-              "Contebt-Type": "application/json",
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({title: title})
           }
@@ -66,6 +106,7 @@ function FrontPage() {
         if(response.ok){
           
           const resp = await response.json()
+                    
           //updating owned file list 
           const updateFileOwn = await fetch("api/update",{
             method:"POST",
@@ -73,11 +114,13 @@ function FrontPage() {
               "Content-Type": "application/json",
               
             },
-            body: JSON.stringify({id: session.user.id, newFile: resp.id})
+            body: JSON.stringify({id: session.user.id, newFile:resp.id})
           })
+          const resUpdate = await updateFileOwn.json();
+
           console.log("created new file succesfully");
-          toast.success(await updateFileOwn.json().message)
-          router.push(`/file/${resp.id}`)
+          toast.success(resUpdate.message)
+          router.push(`/file/${resUpdate.token}`)
         }
       } catch (error) {
         toast.error("Error creating new file.")
@@ -107,8 +150,8 @@ function FrontPage() {
       </div>
    
 
-{files && files.map((data) => (
-  <FileDash title={data} key={data} path={data}/>
+{file && file.map((data) => (
+  <FileDash title={data.title} key={data._id} path={data.token} fileId={data._id} UID={session?.user?.id}/>
 ))}
 
       
