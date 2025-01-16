@@ -94,7 +94,7 @@ export default function LoginForm() {
       
         <>
           <div className="flex">
-            <h2 className="text-7xl m-5 text-center">Login into EZ Docs</h2>
+            <h2 className="text-7xl m-5 text-center hidden md:block">Login into EZ Docs</h2>
           </div>
           <Form {...form}>
             <form
