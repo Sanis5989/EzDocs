@@ -36,7 +36,6 @@ function FrontPage() {
     const [sharedFFiles, setSharedFFiles] = useState()
 
     const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_FILE_TOKEN);
-    const [pdfUrl, setPdfUrl] =useState()
     const fileInputRef = useRef(null);
 
     if (status === "authenticated") {
@@ -56,8 +55,6 @@ function FrontPage() {
             alert('Please upload a valid PDF file.');
         }
       }}
-
-  
 
       const handleButtonClick = () => {
         if (fileInputRef.current) {
@@ -271,7 +268,7 @@ function FrontPage() {
       ))}
       {isSharedFiles && sharedFFiles?.map((data) => (
         // <FileDash/>
-        <FileDash title={data.title} key={data._id} path={data.token} fileId={data._id} UID={session?.user?.id}/>
+        <FileDash title={data.title} key={data._id} path={data.token} fileId={data._id} UID={session?.user?.id} share={true}/>
       ))}
 
     </div>

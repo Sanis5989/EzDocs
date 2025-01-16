@@ -8,7 +8,7 @@ import { z } from "zod";
 import validateEmail from "../../Utils/validateEmail"
 import toast from 'react-hot-toast';
 
-const FileDash = ({ title, path ,UID,fileId}) => {
+const FileDash = ({ title, path ,UID,fileId,share}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const menuRef = useRef(null);
@@ -75,10 +75,13 @@ const FileDash = ({ title, path ,UID,fileId}) => {
     >
       {/* Menu Button */}
       <div className="absolute top-2 right-2" data-menu="true" ref={menuRef}>
+
+        {!share &&
         <button 
           onClick={() => setShowMenu(!showMenu)}
           className='mt-1 bg-transparent'
         >
+          
           {theme === "dark" ? 
           <HiDotsVertical 
             className="hover:bg-[#0d746200] rounded-full p-1 dark:bg-transparent" 
@@ -91,7 +94,7 @@ const FileDash = ({ title, path ,UID,fileId}) => {
           size={30}
         />}
         </button>
-
+ }
         {/* Dropdown Menu */}
         {showMenu && (
           <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200">

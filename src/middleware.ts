@@ -47,7 +47,7 @@ export async function middleware(req : any) {
   //redirecting if signed in user tries to got login or rgister page
   if (isLoggedIn && (isOnLoginPage || isOnRegisterPage)) {
     console.log("Redirecting logged-in user to dashboard");
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   } 
   
   // Allow unauthenticated access to login and signup pages
