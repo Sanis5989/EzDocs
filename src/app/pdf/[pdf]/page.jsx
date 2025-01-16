@@ -5,7 +5,7 @@ import { EmbedPDF } from '@simplepdf/react-embed-pdf';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 
-function page() {
+function Page() {
   const params = useParams();
   const pdfUrl = decodeURIComponent(params.pdf);
 
