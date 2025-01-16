@@ -11,6 +11,10 @@ import toast from 'react-hot-toast';
 import { forEach, update } from 'lodash';
 import jwt from "jsonwebtoken";
 import { SignJWT } from 'jose';
+import { Button } from './button';
+import { LuImport } from "react-icons/lu";
+import { useRef } from 'react';
+
 
 
 function FrontPage() {
@@ -32,12 +36,34 @@ function FrontPage() {
     const [sharedFFiles, setSharedFFiles] = useState()
 
     const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_FILE_TOKEN);
-
+    const [pdfUrl, setPdfUrl] =useState()
+    const fileInputRef = useRef(null);
 
     if (status === "authenticated") {
         console.log(session.user)
         console.log(`Signed in as ${session.user.email}`);
     }
+
+    const handleFileUpload = (event) => {
+      const file = event.target.files[0];
+        if (file) {
+          if (file.type === 'application/pdf') {
+            const fileUrl = URL.createObjectURL(file);
+            const encodedUrl = encodeURIComponent(fileUrl);
+            router.push(`/pdf/${encodedUrl}`);
+            // Process the file here (e.g., upload it or read its content)
+          } else {
+            alert('Please upload a valid PDF file.');
+        }
+      }}
+
+  
+
+      const handleButtonClick = () => {
+        if (fileInputRef.current) {
+          fileInputRef.current.click();
+        }
+      };
 
     //function to fetch file names
       async function fetchFileTitle(token) {
@@ -250,6 +276,21 @@ function FrontPage() {
 
     </div>
   </div>  
+
+
+<div>
+<Button className='fixed bottom-10 right-10 rounded-full text-xl' onClick={handleButtonClick} >
+<input
+        type="file"
+        accept="application/pdf"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileUpload}
+      />
+<LuImport size={25}/> <p className='ml-3 hidden md:block'>PDF</p>
+</Button>
+
+</div>
   <Dialog isOpen={isOpen}
       onClose={() => setIsOpen(false)}
       onSubmit={(value) => createFile(value)}
