@@ -14,6 +14,7 @@ import { SignJWT } from 'jose';
 import { Button } from './button';
 import { LuImport } from "react-icons/lu";
 import { useRef } from 'react';
+import Loading from '@/app/loading';
 
 
 
@@ -22,6 +23,8 @@ function FrontPage() {
   const [isOpen, setIsOpen] = useState(false);
 
     const router = useRouter();
+    
+    const[loading,setloading] = useState()
 
     const {data : session, status} = useSession();
 
@@ -85,6 +88,7 @@ function FrontPage() {
     useEffect(()=>{
         //function to get ids of all the files
         async function getFiles(){
+          setloading(true);
           const file = await fetch(`/api/update?id=${session?.user?.id}`,{
             method:"GET",
           })
@@ -94,6 +98,7 @@ function FrontPage() {
           } else {
             console.error("API returned a non-array value for files",result);
           }
+          setloading(false);
         }
 
         if(session?.user){
@@ -156,6 +161,8 @@ function FrontPage() {
           const response = await fetch(`/api/updateFileaccess?id=${session?.user?.id}`,{
           method:"GET",
           });
+
+          setloading(true);
           const data = await response.json();
           const accessFiles = data?.filesAccess?.fileAccess;
       
@@ -165,7 +172,7 @@ function FrontPage() {
             setSharedFilesList(accessFiles)
             console.log("list of access files id",accessFiles);
           }
-          
+          setloading(false);
           }
         getShared();
     },[isSharedFiles])
@@ -249,30 +256,55 @@ function FrontPage() {
     </div>
 
   {/* grid of documents */}
-  <div className="container mx-auto p-4" >
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto justify-items-center">
-      {/* to create a new document */}
-      {!isSharedFiles && 
-      <div onClick={()=>setIsOpen(true)} className="w-[200px] md:w-[250px] aspect-[1/1.4142]  rounded-sm shadow-lg border-2 border-dashed border-gray-300 
-        hover:border-blue-500 hover:bg-gray-50 transition-all duration-300 ease-in-out cursor-pointer
-        flex flex-col items-center justify-center gap-4 p-4"
+  <div className="container mx-auto p-4">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto justify-items-center">
+    {/* Create a new document */}
+    {!isSharedFiles && (
+      <div
+        onClick={() => setIsOpen(true)}
+        className="w-[200px] md:w-[250px] aspect-[1/1.4142] rounded-sm shadow-lg border-2 border-dashed border-gray-300 
+          hover:border-blue-500 hover:bg-gray-50 transition-all duration-300 ease-in-out cursor-pointer
+          flex flex-col items-center justify-center gap-4 p-4"
       >
         <div className="p-3 rounded-full bg-gray-100 group-hover:bg-blue-100">
           <AiOutlinePlus className="w-8 h-8 text-gray-400 group-hover:text-blue-500" />
         </div>
-        <p className="text-base  text-gray-500 font-medium">Create New Document</p>
-      </div>}
-      
-      {!isSharedFiles && file?.map((data) => (
-        <FileDash title={data.title} key={data._id} path={data.token} fileId={data._id} UID={session?.user?.id}/>
-      ))}
-      {isSharedFiles && sharedFFiles?.map((data) => (
-        // <FileDash/>
-        <FileDash title={data.title} key={data._id} path={data.token} fileId={data._id} UID={session?.user?.id} share={true}/>
-      ))}
+        <p className="text-base text-gray-500 font-medium">Create New Document</p>
+      </div>
+    )}
 
-    </div>
-  </div>  
+    {loading ? (
+      <Loading size={70} />
+    ) : (
+      <>
+        {!isSharedFiles && file?.length > 0 && (
+          file.map((data,index) => (
+            <FileDash
+              title={data.title}
+              key={index}
+              path={data.token}
+              fileId={data._id}
+              UID={session?.user?.id}
+            />
+          ))
+        )}
+        {isSharedFiles && sharedFFiles?.length > 0 && (
+          sharedFFiles.map((data) => (
+            <FileDash
+              title={data.title}
+              key={data._id}
+              path={data.token}
+              fileId={data._id}
+              UID={session?.user?.id}
+              share={true}
+            />
+          ))
+        )}
+      </>
+    )}
+  </div>
+</div>
+
 
 
 <div>

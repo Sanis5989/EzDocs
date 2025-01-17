@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { jwtVerify, SignJWT } from 'jose';
 import { useSession } from 'next-auth/react';
+import Loading from '@/app/loading.tsx';
 
 const TextEditor = dynamic(() => import('../TextEditor.jsx'), { ssr: false });
 
@@ -26,6 +27,7 @@ const EditorPage =  () => {
 
   useEffect(()=>{
     const methu = async ()=>{ 
+    setLoading(true);
     const response =await fetch(`/api/update?id=${session?.user?.id}`,{
       method:"GET",
     })
@@ -36,10 +38,11 @@ const EditorPage =  () => {
     {
       setAccessFile(true);
     }
+    
     }
 
     const checkShareAccess = async ()=>{
-
+      setLoading(true);
       //fetching access list files from db
       const response = await fetch(`/api/updateFileaccess?id=${session?.user?.id}`,{
       method:"GET",
@@ -54,35 +57,20 @@ const EditorPage =  () => {
       if(accessFiles?.includes(FID)){
         setAccessFile(true);
       }
+      
     }
     methu();
     checkShareAccess();
+    setLoading(false)
   },[status]);
 
-  //checking file shared 
-  // useEffect(()=>{
-  //   const checkShareAccess = async ()=>{
-
-  //     //fetching access list tokens from db
-  //     const response = await fetch(`/api/updateFileaccess?id=${session?.user?.id}`,{
-  //     method:"GET",
-  //     });
-  //     const data = await response.json();
-  //     const accessFiles = data?.filesAccess?.fileAccess;
-
-  //     console.log(accessFiles)
-  //     // if(accessFiles?.includes(fileId)){
-  //     //   setAccessFile(true);
-  //     // }
-  //   }
-  //   checkShareAccess();
-  //   },[])
   
   console.log("this is the id for ydoc", fileId);
 
   return (
     <>
-      <div>
+    {loading ? <Loading /> : 
+     <div>
         {accessFile ? 
           <TextEditor documentId={fileId} />
           :
@@ -91,7 +79,8 @@ const EditorPage =  () => {
           </div>
         }
         
-      </div>
+      </div>}
+     
     </>
   );
 };

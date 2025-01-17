@@ -17,6 +17,7 @@ import { useSession } from 'next-auth/react';
 import { IoIosSave } from "react-icons/io";
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+// import useAutoSave from "../../Utils/useAutoSave"
 
 
 
@@ -41,6 +42,12 @@ export default function Editor({ documentId }) {
     _id:"",
     content:""
   });
+
+  // const { isSaving, socketStatus } = useAutoSave(
+  //   quill, 
+  //   fetchedFile, 
+  //   session
+  // );
 
   const [exporthHeight, setExportHeight] = useState();
 

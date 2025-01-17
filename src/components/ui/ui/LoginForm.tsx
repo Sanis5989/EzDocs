@@ -18,6 +18,8 @@ import { useState , useEffect} from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import Loading from "@/app/loading";
 
 
 const formSchema = z
@@ -32,6 +34,7 @@ export default function LoginForm() {
   const [login, setLogin] = useState(true);
   const {data: session} = useSession();
   const router = useRouter();
+  const[loading,setLoading] = useState(false);
 
 
   type ProvidersType = Record<string, ClientSafeProvider> | null;
@@ -53,12 +56,14 @@ export default function LoginForm() {
     const { email, password } = data;
 
     try {
+      setLoading(true);
       const response: any = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
-      console.log({ response });
+
+      
       if (!response?.error) {
         router.push("/");
         router.refresh();
@@ -67,8 +72,7 @@ export default function LoginForm() {
       if (response?.error) {
         // Display the error to the user
         console.error("Login Failed:", response.error);
-        alert(response.error); // or show this in a UI component
-        return;
+        toast.error(response.error) // or show this in a UI component
       }
       console.log("Login Successful", response);
       
@@ -77,11 +81,9 @@ export default function LoginForm() {
       console.error("Login Failed:", error);
       
     }
+    setLoading(false);
   }
 
-  function signUp(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
   useEffect(() => {
       (async () => {
         const res = await getProviders();
@@ -136,13 +138,15 @@ export default function LoginForm() {
                   </FormItem>
                 )}
               />
+              {loading ?  <Loading size={40}/> : 
               <Button
                 type="submit"
                 className="flex text-lg items-center"
                 size="lg"
               >
-                Log In
-              </Button>
+                <>Log In</>
+                
+              </Button>}
             </form>
           </Form>
           <p className="text-center m-5">
