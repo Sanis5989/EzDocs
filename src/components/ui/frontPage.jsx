@@ -41,10 +41,7 @@ function FrontPage() {
     const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_FILE_TOKEN);
     const fileInputRef = useRef(null);
 
-    if (status === "authenticated") {
-        console.log(session.user)
-        console.log(`Signed in as ${session.user.email}`);
-    }
+  useEffect(()=>(console.log("render")))
 
     const handleFileUpload = (event) => {
       const file = event.target.files[0];
@@ -67,7 +64,6 @@ function FrontPage() {
 
     //function to fetch file names
       async function fetchFileTitle(token) {
-        console.log("para",token)
         const fileDetail = await fetch(`/api/file?id=${token}`,{
           method:"GET",
           headers:{
@@ -87,18 +83,24 @@ function FrontPage() {
     //fuction to fetch all the token of owned files
     useEffect(()=>{
         //function to get ids of all the files
-        async function getFiles(){
-          setloading(true);
-          const file = await fetch(`/api/update?id=${session?.user?.id}`,{
-            method:"GET",
-          })
-          const result = await file.json();
-          if (result.files && Array.isArray(result.files.fileOwned)) {
-            setFiles(result.files.fileOwned);
-          } else {
-            console.error("API returned a non-array value for files",result);
-          }
-          setloading(false);
+        async function getFiles() {
+          
+          try {
+            const file = await fetch(`/api/update?id=${session?.user?.id}`, {
+              method: "GET",
+            });
+            const result = await file.json();
+            if (result.files && Array.isArray(result.files.fileOwned)) {
+              setFiles(result.files.fileOwned);
+            } else {
+              console.error("API returned a non-array value for files", result);
+              setError("Couldn't load your files");
+            }
+          } catch (err) {
+            console.error("Error fetching files:", err);
+            setError("Failed to fetch your files");
+            toast.error("Error loading files");
+          } 
         }
 
         if(session?.user){
@@ -108,14 +110,24 @@ function FrontPage() {
 
 
     //function to fetch each file owned details
-    useEffect(()=>{
-      const arr = [];
-      files?.forEach(async (data)=>{
-        const body = await fetchFileTitle(data)
-        arr.push(body);
-        setFile(arr);
-      })
-    },[files])
+    useEffect(() => {
+      const fetchAllFileDetails = async () => {
+        if (!files || !Array.isArray(files) || files.length === 0) return;
+        
+        const filePromises = files.map(data => fetchFileTitle(data));
+        try {
+          const results = await Promise.all(filePromises);
+          setFile(results);
+        } catch (error) {
+          console.error("Error fetching file details:", error);
+          toast.error("Failed to load some files");
+        }
+      };
+
+      if (files) {
+        fetchAllFileDetails();
+      }
+    }, [files]);
 
     //method to create a new file and save in database
     const createFile = async (title)=>{
@@ -177,43 +189,48 @@ function FrontPage() {
         getShared();
     },[isSharedFiles])
 
-    useEffect(()=>{
-      async function fetchSharedFileTitle(val) {
-        const token = await new SignJWT({id:val})
-        .setProtectedHeader({ alg: 'HS256' })
-        .setIssuedAt()
-        .sign(secret);
-        const fileDetail = await fetch(`/api/file?id=${token}`,{
-          method:"GET",
-          headers:{
-            "Content-Type": "application/json",
-          }
-        });
-
-        let res = await fileDetail.json();
+    useEffect(() => {
+      const fetchAllSharedFileDetails = async () => {
+        if (!sharedFilesList || !Array.isArray(sharedFilesList) || sharedFilesList.length === 0) return;
         
-        return{
-          ...res,
-          token: token 
-        };
-
+        const sharedFilePromises = sharedFilesList.map(async (val) => {
+          const token = await new SignJWT({id: val})
+            .setProtectedHeader({ alg: 'HS256' })
+            .setIssuedAt()
+            .sign(secret);
+          
+          const fileDetail = await fetch(`/api/file?id=${token}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            }
+          });
+          
+          let res = await fileDetail.json();
+          return {
+            ...res,
+            token: token
+          };
+        });
+        
+        try {
+          const results = await Promise.all(sharedFilePromises);
+          setSharedFFiles(results);
+        } catch (error) {
+          console.error("Error fetching shared file details:", error);
+          toast.error("Failed to load some shared files");
+        }
+      };
+    
+      if (sharedFilesList) {
+        fetchAllSharedFileDetails();
       }
-
-      const arra = [];
-      sharedFilesList?.forEach(async (data)=>{
-        const bodyy = await fetchSharedFileTitle(data)
-        arra.push(bodyy);
-        setSharedFFiles(arra);
-      })
-    },[sharedFilesList])
+    }, [sharedFilesList]);
 
 
 
 
-    useEffect(()=>{
-      console.log("shared file details",sharedFFiles)
-    },[sharedFFiles])
-
+useEffect(()=>(console.log(files)),[files])
 
 
 
