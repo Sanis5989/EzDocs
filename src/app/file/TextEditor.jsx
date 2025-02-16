@@ -17,6 +17,7 @@ import { useSession } from 'next-auth/react';
 import { IoIosSave } from "react-icons/io";
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { debounce } from 'lodash';
 // import useAutoSave from "../../Utils/useAutoSave"
 
 
@@ -29,6 +30,9 @@ Quill.register("modules/imageResize", ImageResize);
 Quill.register('modules/draggableImage', DraggableImage);
 
 export default function Editor({ documentId }) {
+
+  
+
   const[error, setError] = useState(false);
   const [content, setContent] = useState('');
   const {data : session, status} = useSession();
@@ -259,13 +263,48 @@ export default function Editor({ documentId }) {
           });
         }
       });
+
+      let saveTimeout = null; // Track save delay
+
+    // Function to send updates to the backend
+    const saveToDB = async (content) => {
+      try{
+      const res = await fetch('/api/file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content,
+          _id:fetchedFile._id
+        }),
+      });
+      if(res.ok){
+        toast.success("File Saved")
+      }
+      }
+      catch(error){
+        toast.error(error)
+        console.log(error);
+      }
+    };
+
+    // Track changes with a manual timeout (instead of direct debounce)
+    ydoc.on('update', () => {
+      clearTimeout(saveTimeout); // Reset previous timer
+      saveTimeout = setTimeout(() => {
+        const content = ytext.toString(); // Extract text
+        saveToDB(content);
+      }, 3000); // Save after 3 seconds of inactivity
+    });
       return () => {
+        clearTimeout(saveTimeout);
         binding.destroy();
         provider.disconnect();
         ydoc.destroy();
       };
     }
-  }, [quill, documentId, fetchedFile.content, isContentLoaded]);
+  }, [quill,  fetchedFile._id]);
+
+  
 
   // //maintaining a4 size
   // useEffect(() => {
@@ -541,7 +580,17 @@ const saveToDb = async ()=>{
    
 }
 
-  
+// let saveTimeout;
+// if(quill){
+// quill.on('text-change', () => {
+//   clearTimeout(saveTimeout);
+//   saveTimeout = setTimeout(() => {
+//       const content = quill.getContents();
+//       saveToDb(content);
+//   }, 2000);
+// })}
+
+  useEffect(()=>(console.log("rendered")))
 
   //styles
   const containerStyle = {
