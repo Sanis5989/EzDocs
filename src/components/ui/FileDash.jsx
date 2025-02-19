@@ -7,8 +7,9 @@ import Dialog from './ui/Dialog';
 import { z } from "zod";
 import validateEmail from "../../Utils/validateEmail"
 import toast from 'react-hot-toast';
+import Loading from '@/app/loading';
 
-const FileDash = ({ title, path ,UID,fileId,share}) => {
+const FileDash = ({ title, path ,UID,fileId,share, loading}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const menuRef = useRef(null);
@@ -68,6 +69,7 @@ const FileDash = ({ title, path ,UID,fileId,share}) => {
 
   return (
     <>
+    
    
     <div 
       className="relative w-[200px] md:w-[250px] aspect-[1/1.4142] rounded-sm shadow-lg border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-gray-50 transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center justify-center gap-4 p-4"
@@ -110,14 +112,15 @@ const FileDash = ({ title, path ,UID,fileId,share}) => {
           </div>
         )}
       </div>
+      {loading ? <Loading size={50}/> :
+<>
 
-      {/* File Icon */}
       <div className="p-5 rounded-full bg-gray-100 group-hover:bg-blue-100">
         <FaRegFileAlt className="text-gray-400 group-hover:text-blue-500" size={60}/>
-      </div>
-      
+      </div><p className="text-base text-center text-gray-500 font-medium">{title}</p></>
+       }
       {/* File Title */}
-      <p className="text-base text-center text-gray-500 font-medium">{title}</p>
+      
 
       
     </div>

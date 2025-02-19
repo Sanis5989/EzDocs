@@ -32,6 +32,8 @@ function FrontPage() {
 
     const[file, setFile] =useState();
 
+    const[fileLoading, setFileloading] =useState(false)
+
     const [isSharedFiles, setIsSharedFiles] = useState(false);
     
     const [sharedFilesList, setSharedFilesList] = useState()
@@ -191,6 +193,7 @@ function FrontPage() {
 
     useEffect(() => {
       const fetchAllSharedFileDetails = async () => {
+        setFileloading(true);
         if (!sharedFilesList || !Array.isArray(sharedFilesList) || sharedFilesList.length === 0) return;
         
         const sharedFilePromises = sharedFilesList.map(async (val) => {
@@ -216,6 +219,7 @@ function FrontPage() {
         try {
           const results = await Promise.all(sharedFilePromises);
           setSharedFFiles(results);
+          setFileloading(false)
         } catch (error) {
           console.error("Error fetching shared file details:", error);
           toast.error("Failed to load some shared files");
@@ -297,6 +301,7 @@ useEffect(()=>(console.log(files)),[files])
         {!isSharedFiles && file?.length > 0 && (
           file.map((data,index) => (
             <FileDash
+              loading={fileLoading}
               title={data.title}
               key={index}
               path={data.token}
@@ -308,6 +313,7 @@ useEffect(()=>(console.log(files)),[files])
         {isSharedFiles && sharedFFiles?.length > 0 && (
           sharedFFiles.map((data) => (
             <FileDash
+            loading={fileLoading}
               title={data.title}
               key={data._id}
               path={data.token}
