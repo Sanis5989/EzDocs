@@ -87,7 +87,7 @@ export default function Editor({ documentId }) {
         try {
           const response = await fetch(`/api/file?id=${documentId}`, {
             method: 'GET',
-
+            cache:"no-cache"
           });
           console.log("fetced")
           const result = await response.json();
@@ -107,7 +107,7 @@ export default function Editor({ documentId }) {
       
   
       fetchContent();
-    }, [documentId]);
+    }, []);
 
     useEffect(() => {
       // setContent(fetchedFile.content);
@@ -222,6 +222,8 @@ export default function Editor({ documentId }) {
 
       const binding = new QuillBinding(ytext, quill);
 
+
+
       // Initialize the cursor module
       const cursorsModule = quill.getModule('cursors');
       // Listen to Yjs awareness updates and reflect them in the Quill editor
@@ -292,6 +294,7 @@ export default function Editor({ documentId }) {
       clearTimeout(saveTimeout); // Reset previous timer
       saveTimeout = setTimeout(() => {
         const content = ytext.toString(); // Extract text
+        setContent(content)
         saveToDB(content);
       }, 3000); // Save after 3 seconds of inactivity
     });
@@ -590,7 +593,10 @@ const saveToDb = async ()=>{
 //   }, 2000);
 // })}
 
-  useEffect(()=>(console.log("rendered")))
+  useEffect(()=>{
+    console.log("rendered")
+    console.log(content)
+  })
 
   //styles
   const containerStyle = {
