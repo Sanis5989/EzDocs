@@ -34,7 +34,7 @@ export default function Editor({ documentId }) {
   
 
   const[error, setError] = useState(false);
-  const [content, setContent] = useState('');
+  const content = useRef('');
   const {data : session, status} = useSession();
   const [quill, setQuill] = useState(null);
   const reactQuillRef = useRef(null);
@@ -52,7 +52,7 @@ export default function Editor({ documentId }) {
   //   fetchedFile, 
   //   session
   // );
-
+  const contentRef = useRef(content);
   const [exporthHeight, setExportHeight] = useState();
 
   const [socketProvider,setSocketProvider] =useState("disconnected");
@@ -115,7 +115,7 @@ export default function Editor({ documentId }) {
         if (quill) {
           // Overwrite the socket document with the latest fetched data
           quill.setContents(fetchedFile.content);
-          setContent(fetchedFile.content)
+          contentRef.current = (fetchedFile.content)
           console.log("this is overwrite", fetchedFile.content)
         }
       };
@@ -280,6 +280,7 @@ export default function Editor({ documentId }) {
         }),
       });
       if(res.ok){
+        
         toast.success("File Saved")
       }
       }
@@ -289,13 +290,23 @@ export default function Editor({ documentId }) {
       }
     };
 
+    ydoc.on('update', () => {
+      content.current = (ytext.toString());
+      console.log("updatets ref")
+    });
+
     // Track changes with a manual timeout (instead of direct debounce)
     ydoc.on('update', () => {
       clearTimeout(saveTimeout); // Reset previous timer
       saveTimeout = setTimeout(() => {
-        const content = ytext.toString(); // Extract text
-        setContent(content)
-        saveToDB(content);
+        const cont = ytext.toString(); // Extract text
+        if(content.current !== cont ){
+          saveToDB(cont);
+          console.log("saved");
+          
+        }
+        console.log("ytext", cont)
+        console.log("state",content);
       }, 3000); // Save after 3 seconds of inactivity
     });
       return () => {
@@ -305,7 +316,7 @@ export default function Editor({ documentId }) {
         ydoc.destroy();
       };
     }
-  }, [quill,  fetchedFile._id]);
+  }, [quill]);
 
   
 
@@ -571,7 +582,7 @@ const saveToDb = async ()=>{
     });
     if(res.ok){
        toast.success("File saved.")
- 
+      
     }
    
   } catch (error) {
@@ -765,7 +776,7 @@ const customQuillStyles = `
             }}
             ref={reactQuillRef}
             style={editorStyle}
-            value={content}
+            value={content.current}
           />
         </div>
       </div>
