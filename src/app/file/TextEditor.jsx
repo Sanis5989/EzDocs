@@ -109,25 +109,25 @@ export default function Editor({ documentId }) {
       fetchContent();
     }, []);
 
-    useEffect(() => {
-      // setContent(fetchedFile.content);
-      const overwriteContentWithFetchedData = () => {
-        if (quill) {
-          // Overwrite the socket document with the latest fetched data
-          quill.setContents(fetchedFile.content);
-          contentRef.current = (fetchedFile.content)
-          console.log("this is overwrite", fetchedFile.content)
-        }
-      };
+    // useEffect(() => {
+    //   // setContent(fetchedFile.content);
+    //   const overwriteContentWithFetchedData = () => {
+    //     if (quill) {
+    //       // Overwrite the socket document with the latest fetched data
+    //       quill.setContents(fetchedFile.content);
+    //       contentRef.current = fetchedFile.content
+    //       console.log("this is overwrite", fetchedFile.content)
+    //     }
+    //   };
     
-      // Trigger the overwrite when either `quill` or `fetchedFile.content` changes
-      setTimeout(()=>{
-        if (quill && fetchedFile.content) {
+    //   // Trigger the overwrite when either `quill` or `fetchedFile.content` changes
+    //   setTimeout(()=>{
+    //     if (quill && fetchedFile.content) {
           
-          overwriteContentWithFetchedData();
-      }
-    },[1000])
-    }, [fetchedFile]);
+    //       overwriteContentWithFetchedData();
+    //   }
+    // },[1000])
+    // }, [fetchedFile]);
 
   //setting the quill instance
   useEffect(() => {
@@ -301,10 +301,10 @@ export default function Editor({ documentId }) {
       saveTimeout = setTimeout(() => {
         const cont = ytext.toString(); // Extract text
         if(content.current !== cont ){
-          saveToDB(cont);
+          
           console.log("saved");
           
-        }
+        }saveToDB(cont);
         console.log("ytext", cont)
         console.log("state",content);
       }, 3000); // Save after 3 seconds of inactivity
