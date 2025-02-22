@@ -88,7 +88,6 @@ export default function Editor({ documentId }) {
         try {
           const response = await fetch(`/api/file?id=${documentId}`, {
             method: 'GET',
-            cache:"no-cache"
           });
           console.log("fetced")
           const result = await response.json();
@@ -115,7 +114,7 @@ export default function Editor({ documentId }) {
       const overwriteContentWithFetchedData = () => {
         if (quill) {
           // Overwrite the socket document with the latest fetched data
-          quill.setContents(fetchedFile.content);
+          // quill.setContents(fetchedFile.content);
           content.current = fetchedFile.content
           console.log("this is overwrite", fetchedFile.content)
         }
