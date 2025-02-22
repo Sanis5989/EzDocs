@@ -108,7 +108,7 @@ export default function Editor({ documentId }) {
       
   
       fetchContent();
-    }, [documentId]);
+    }, []);
 
     useEffect(() => {
       // setContent(fetchedFile.content);
