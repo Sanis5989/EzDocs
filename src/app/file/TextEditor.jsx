@@ -109,25 +109,25 @@ export default function Editor({ documentId }) {
       fetchContent();
     }, []);
 
-    // useEffect(() => {
-    //   // setContent(fetchedFile.content);
-    //   const overwriteContentWithFetchedData = () => {
-    //     if (quill) {
-    //       // Overwrite the socket document with the latest fetched data
-    //       // quill.setContents(fetchedFile.content);
-    //       content.current = fetchedFile.content
-    //       console.log("this is overwrite", fetchedFile.content)
-    //     }
-    //   };
+    useEffect(() => {
+      // setContent(fetchedFile.content);
+      const overwriteContentWithFetchedData = () => {
+        if (quill) {
+          // Overwrite the socket document with the latest fetched data
+          // quill.setContents(fetchedFile.content);
+          content.current = fetchedFile.content
+          console.log("this is overwrite", fetchedFile.content)
+        }
+      };
     
-    //   // Trigger the overwrite when either `quill` or `fetchedFile.content` changes
-    //   setTimeout(()=>{
-    //     if (quill && fetchedFile.content) {
+      // Trigger the overwrite when either `quill` or `fetchedFile.content` changes
+      setTimeout(()=>{
+        if (quill && fetchedFile.content) {
           
-    //       overwriteContentWithFetchedData();
-    //   }
-    // },500)
-    // }, [fetchedFile]);
+          overwriteContentWithFetchedData();
+      }
+    },500)
+    }, [fetchedFile]);
 
   //setting the quill instance
   useEffect(() => {
