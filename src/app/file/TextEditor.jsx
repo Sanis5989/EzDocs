@@ -81,10 +81,10 @@ export default function Editor({ documentId }) {
       // Fetch content from the backend
       const fetchContent = async () => {
         console.log("state",socketProvider)
-        if(socketProvider === "connected"){
-          console.log("exit fecth")
-            return
-        }
+        // if(socketProvider === "connected"){
+        //   console.log("exit fecth")
+        //     return
+        // }
         try {
           const response = await fetch(`/api/file?id=${documentId}`, {
             method: 'GET',
@@ -291,10 +291,10 @@ export default function Editor({ documentId }) {
       }
     };
 
-    // ydoc.on('update', () => {
-    //   content.current = (ytext.toString());
-    //   console.log("updatets ref")
-    // });
+    ydoc.on('update', () => {
+      content.current = (ytext.toString());
+      console.log("updatets ref")
+    });
 
     // Track changes with a manual timeout (instead of direct debounce)
     ydoc.on('update', () => {
