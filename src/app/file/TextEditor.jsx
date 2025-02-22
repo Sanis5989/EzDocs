@@ -32,6 +32,7 @@ Quill.register('modules/draggableImage', DraggableImage);
 export default function Editor({ documentId }) {
 
   
+  
 
   const[error, setError] = useState(false);
   const content = useRef('');
@@ -107,27 +108,27 @@ export default function Editor({ documentId }) {
       
   
       fetchContent();
-    }, []);
+    }, [documentId]);
 
-    // useEffect(() => {
-    //   // setContent(fetchedFile.content);
-    //   const overwriteContentWithFetchedData = () => {
-    //     if (quill) {
-    //       // Overwrite the socket document with the latest fetched data
-    //       quill.setContents(fetchedFile.content);
-    //       contentRef.current = fetchedFile.content
-    //       console.log("this is overwrite", fetchedFile.content)
-    //     }
-    //   };
+    useEffect(() => {
+      // setContent(fetchedFile.content);
+      const overwriteContentWithFetchedData = () => {
+        if (quill) {
+          // Overwrite the socket document with the latest fetched data
+          quill.setContents(fetchedFile.content);
+          content.current = fetchedFile.content
+          console.log("this is overwrite", fetchedFile.content)
+        }
+      };
     
-    //   // Trigger the overwrite when either `quill` or `fetchedFile.content` changes
-    //   setTimeout(()=>{
-    //     if (quill && fetchedFile.content) {
+      // Trigger the overwrite when either `quill` or `fetchedFile.content` changes
+      setTimeout(()=>{
+        if (quill && fetchedFile.content) {
           
-    //       overwriteContentWithFetchedData();
-    //   }
-    // },[1000])
-    // }, [fetchedFile]);
+          overwriteContentWithFetchedData();
+      }
+    },500)
+    }, [fetchedFile]);
 
   //setting the quill instance
   useEffect(() => {
@@ -269,8 +270,9 @@ export default function Editor({ documentId }) {
       let saveTimeout = null; // Track save delay
 
     // Function to send updates to the backend
-    const saveToDB = async (content) => {
+    const saveToDB = async (cont) => {
       try{
+        const content = cont;
       const res = await fetch('/api/file', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -280,8 +282,8 @@ export default function Editor({ documentId }) {
         }),
       });
       if(res.ok){
-        
-        toast.success("File Saved")
+        console.log("saved file", cont)
+        // toast.success("File Saved")
       }
       }
       catch(error){
@@ -299,14 +301,8 @@ export default function Editor({ documentId }) {
     ydoc.on('update', () => {
       clearTimeout(saveTimeout); // Reset previous timer
       saveTimeout = setTimeout(() => {
-        const cont = ytext.toString(); // Extract text
-        if(content.current !== cont ){
-          
-          console.log("saved");
-          
-        }saveToDB(cont);
-        console.log("ytext", cont)
-        console.log("state",content);
+        saveToDb();
+        
       }, 3000); // Save after 3 seconds of inactivity
     });
       return () => {
@@ -316,7 +312,7 @@ export default function Editor({ documentId }) {
         ydoc.destroy();
       };
     }
-  }, [quill]);
+  }, [quill, fetchedFile._id]);
 
   
 
@@ -570,19 +566,20 @@ const saveToDb = async ()=>{
     toast.error("Error");
     return;
   }
-
+  const id = fetchedFile._id
   try {
     const content = quill.root.innerHTML;
+    
     const res = await fetch("/api/file",{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify({content,_id:fetchedFile._id}),
+      },cache:"no-cache",
+      body: JSON.stringify({content,_id:id}),
     });
     if(res.ok){
        toast.success("File saved.")
-      
+      console.log("saved", content , fetchedFile._id)
     }
    
   } catch (error) {
