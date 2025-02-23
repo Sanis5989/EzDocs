@@ -81,10 +81,10 @@ export default function Editor({ documentId }) {
       // Fetch content from the backend
       const fetchContent = async () => {
         console.log("state",socketProvider)
-        // if(socketProvider === "connected"){
-        //   console.log("exit fecth")
-        //     return
-        // }
+        if(socketProvider === "connected"){
+          console.log("exit fecth")
+            return
+        }
         try {
           const response = await fetch(`/api/file?id=${documentId}`, {
             method: 'GET',
@@ -105,17 +105,23 @@ export default function Editor({ documentId }) {
         }
       };
       
-  
-      fetchContent();
+      setTimeout(()=>{
+        fetchContent();
+    },500)
+      
     }, []);
 
     useEffect(() => {
       // setContent(fetchedFile.content);
       const overwriteContentWithFetchedData = () => {
+        if(socketProvider === "connected"){
+          console.log("exit fecth")
+            return
+        }
         if (quill) {
           // Overwrite the socket document with the latest fetched data
-          // quill.setContents(fetchedFile.content);
-          content.current = fetchedFile.content
+          quill.setContents(fetchedFile.content);
+          // content.current = fetchedFile.content
           console.log("this is overwrite", fetchedFile.content)
         }
       };
