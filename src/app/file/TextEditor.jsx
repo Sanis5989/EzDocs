@@ -114,6 +114,10 @@ export default function Editor({ documentId }) {
     useEffect(() => {
       // setContent(fetchedFile.content);
       const overwriteContentWithFetchedData = () => {
+        if(socketProvider === "connected"){
+          console.log("exit fecth")
+            return
+        }
         if (quill) {
           // Overwrite the socket document with the latest fetched data
           // quill.setContents(fetchedFile.content);
