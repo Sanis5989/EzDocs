@@ -81,10 +81,10 @@ export default function Editor({ documentId }) {
       // Fetch content from the backend
       const fetchContent = async () => {
         console.log("state",socketProvider)
-        // if(socketProvider === "connected"){
-        //   console.log("exit fecth")
-        //     return
-        // }
+        if(socketProvider === "connected"){
+          console.log("exit fecth")
+            return
+        }
         try {
           const response = await fetch(`/api/file?id=${documentId}`, {
             method: 'GET',
