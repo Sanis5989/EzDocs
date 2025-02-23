@@ -120,8 +120,8 @@ export default function Editor({ documentId }) {
         }
         if (quill) {
           // Overwrite the socket document with the latest fetched data
-          // quill.setContents(fetchedFile.content);
-          content.current = fetchedFile.content
+          quill.setContents(fetchedFile.content);
+          // content.current = fetchedFile.content
           console.log("this is overwrite", fetchedFile.content)
         }
       };
