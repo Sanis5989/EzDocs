@@ -105,8 +105,10 @@ export default function Editor({ documentId }) {
         }
       };
       
-  
-      fetchContent();
+      setTimeout(()=>{
+        fetchContent();
+    },500)
+      
     }, []);
 
     useEffect(() => {
